@@ -26,5 +26,18 @@
   "bugs": {
     "url": "https://github.com/elhigu/knex-db-manager/issues"
   },
-  "homepage": "https://github.com/elhigu/knex-db-manager#readme"
+  "homepage": "https://github.com/elhigu/knex-db-manager#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "coveralls": "^2.11.9",
+    "istanbul": "^0.4.4",
+    "mocha": "^2.5.3",
+    "mysql": "^2.11.1",
+    "pg": "^6.0.2",
+    "pg-escape": "^0.2.0",
+    "sqlite3": "^3.1.4"
+  },
+  "dependencies": {
+    "knex": "^0.11.7"
+  }
 }

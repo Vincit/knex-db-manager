@@ -1,24 +1,34 @@
 var _ = require('lodash')
-  , expect = require('expect.js')
-  , dbManagerFactory = require('../../database/db-utils')
+  , expect = require('chai').expect
+  , dbManagerFactory = require('../lib').databaseManagerFactory
   , Promise = require('bluebird');
 
 Promise.longStackTraces();
 
 var postgresConf = {
-  client: 'postgres',
-  host: 'localhost',
-  database: 'dbmanger-test-database-deleteme',
-  // currently fail if these not found from postgres
-  collate: ['fi_FI.UTF-8', 'Finnish_Finland.1252'],
-  user: 'postgres',
-  password: undefined,
-  superUser: 'postgres',
-  superPassword: undefined,
-  minConnectionPoolSize: 0,
-  maxConnectionPoolSize: 10,
-  migrationsDir: __dirname + '/migrations',
-  migrationsTable: 'testmigrations'
+  knex: {
+    client: 'postgres',
+    connection: {
+      host: 'localhost',
+      database: 'dbmanger-test-database-deleteme',
+      // currently fail if these not found from postgres
+      user: 'postgres',
+      password: undefined
+    },
+    pool: {
+      min: 0,
+      max: 10
+    },
+    migrations: {
+      directory: __dirname + '/migrations',
+      tableName: 'testmigrations'
+    }
+  },
+  dbManager: {
+    collate: ['fi_FI.UTF-8', 'Finnish_Finland.1252'],
+    superUser: 'postgres',
+    superPassword: undefined
+  }
 };
 
 var mysqlConf = { };
@@ -38,7 +48,7 @@ describe('DatabaseManager', function() {
     return Promise.all(
       _.map(availableDatabases, function (dbManager) {
         return Promise.all([
-          dbManager.dropDb(dbManager.config.database),
+          dbManager.dropDb(dbManager.config.knex.database),
           dbManager.dropDb(dbCopyName)
         ]);
       })
@@ -49,7 +59,7 @@ describe('DatabaseManager', function() {
   it.skip("#knexInstance should fail to create an instance with non existing db", function () {
     return Promise.all(
       _.map(availableDatabases, function (dbManager) {
-        var knex = dbManager.knexInstance(dbManager.config.database);
+        var knex = dbManager.knexInstance(dbManager.config.knex.database);
         return knex.raw(';')
           .then(function () {
             expect("Expected error from DB").to.fail();
@@ -66,10 +76,10 @@ describe('DatabaseManager', function() {
   it("#createDb should create a database", function () {
     return Promise.all(
       _.map(availableDatabases, function (dbManager) {
-        return dbManager.createDb(dbManager.config.database)
+        return dbManager.createDb(dbManager.config.knex.database)
           .then(function () {
             // connecting db should work
-            var knex = dbManager.knexInstance(dbManager.config.database);
+            var knex = dbManager.knexInstance(dbManager.config.knex.database);
             return knex.raw(';').then(function () {
               return knex.destroy();
             });
@@ -79,30 +89,30 @@ describe('DatabaseManager', function() {
 
   it("#migrateDb should update version and run migrations", function () {
     return Promise.all(_.map(availableDatabases, function (dbManager) {
-      return dbManager.dbVersion(dbManager.config.database)
+      return dbManager.dbVersion(dbManager.config.knex.database)
         .then(function (originalVersionInfo) {
           expect(originalVersionInfo).to.be('none');
-          return dbManager.migrateDb(dbManager.config.database);
+          return dbManager.migrateDb(dbManager.config.knex.database);
         })
         .then(function (migrateResponse) {
           expect(migrateResponse[0]).to.be(1);
-          return dbManager.dbVersion(dbManager.config.database);
+          return dbManager.dbVersion(dbManager.config.knex.database);
         })
         .then(function (versionInfo) {
           expect(versionInfo).to.be('20150623130922');
-          return dbManager.migrateDb(dbManager.config.database);
+          return dbManager.migrateDb(dbManager.config.knex.database);
         })
         .then(function (migrateResponse) {
           expect(migrateResponse[0]).to.be(2);
-          return dbManager.migrateDb(dbManager.config.database);
+          return dbManager.migrateDb(dbManager.config.knex.database);
         })
         .then(function (migrateResponse) {
           expect(migrateResponse[0]).to.be(2);
-          return dbManager.dbVersion(dbManager.config.database);
+          return dbManager.dbVersion(dbManager.config.knex.database);
         })
         .then(function (versionInfo) {
           expect(versionInfo).to.be('20150623130922');
-          return dbManager.migrateDb(dbManager.config.database);
+          return dbManager.migrateDb(dbManager.config.knex.database);
         });
       }));
   });
@@ -110,9 +120,9 @@ describe('DatabaseManager', function() {
   it("#populateDb should populate data from given directory", function () {
     return Promise.all(
       _.map(availableDatabases, function (dbManager) {
-        return dbManager.populateDb(dbManager.config.database, __dirname + '/populate/*.js')
+        return dbManager.populateDb(dbManager.config.knex.database, __dirname + '/populate/*.js')
           .then(function () {
-            var knex = dbManager.knexInstance(dbManager.config.database);
+            var knex = dbManager.knexInstance(dbManager.config.knex.database);
             return knex.select().from('User').then(function (result) {
               expect(result[0].id).to.be('1');
             }).then(function () {
@@ -125,7 +135,7 @@ describe('DatabaseManager', function() {
   it("#copyDb should copy a database", function () {
     return Promise.all(
       _.map(availableDatabases, function (dbManager) {
-        return dbManager.copyDb(dbManager.config.database, dbCopyName)
+        return dbManager.copyDb(dbManager.config.knex.database, dbCopyName)
           .then(function () {
             var knex = dbManager.knexInstance(dbCopyName);
             return knex.select().from('User')
@@ -141,15 +151,15 @@ describe('DatabaseManager', function() {
 
   it("#truncateDb should truncate a database", function () {
     return Promise.all(_.map(availableDatabases, function (dbManager) {
-      return dbManager.truncateDb(dbManager.config.database)
+      return dbManager.truncateDb(dbManager.config.knex.database)
         .then(function (result) {
-          var knex = dbManager.knexInstance(dbManager.config.database);
+          var knex = dbManager.knexInstance(dbManager.config.knex.database);
 
           return Promise.all([
             knex.select().from('User').then(function (result) {
               expect(result.length).to.be(0);
             }),
-            dbManager.dbVersion(dbManager.config.database).then(function (ver) {
+            dbManager.dbVersion(dbManager.config.knex.database).then(function (ver) {
               expect(ver).to.be('20150623130922');
             }),
             knex('User').insert({
@@ -170,7 +180,7 @@ describe('DatabaseManager', function() {
 
   it("#updateIdSequences should update primary key sequences", function () {
     return Promise.all(_.map(availableDatabases, function (dbManager) {
-      var knex = dbManager.knexInstance(dbManager.config.database);
+      var knex = dbManager.knexInstance(dbManager.config.knex.database);
 
       return knex('User').insert([
         { id: 5, username: 'new1', email: 'new_1@example.com' },
@@ -196,7 +206,7 @@ describe('DatabaseManager', function() {
 
   it("#updateIdSequences should work with empty table and with minimum value other than 1", function () {
     return Promise.all(_.map(availableDatabases, function (dbManager) {
-      var knex = dbManager.knexInstance(dbManager.config.database);
+      var knex = dbManager.knexInstance(dbManager.config.knex.database);
 
       return knex.select().from('IdSeqTest').then(function (result) {
         expect(result.length).to.be(0);
@@ -230,12 +240,12 @@ describe('DatabaseManager', function() {
     return Promise.all(
       _.map(availableDatabases, function (dbManager) {
         return Promise.all([
-          dbManager.dropDb(dbManager.config.database),
+          dbManager.dropDb(dbManager.config.knex.database),
           dbManager.dropDb(dbCopyName),
           dbManager.dropDb(dbCopyName) // this should not fail
         ]).then(function () {
           // test db was dropped
-          var knex = dbManager.knexInstance(dbManager.config.database);
+          var knex = dbManager.knexInstance(dbManager.config.knex.database);
           return knex.raw(';').then(function () {
             expect("Expected error from DB").to.fail();
           })
