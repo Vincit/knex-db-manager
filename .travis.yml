@@ -1,0 +1,22 @@
+# .travis.yml
+language: node_js
+
+node_js:
+  - '0.10'
+  - '0.12'
+  - '4'
+  - '5'
+  - '6'
+
+# before_script:
+#   - psql -c "create database objection_test;" -U postgres
+#   - mysql -e "create database objection_test;"
+
+after_script:
+  - npm run-script coveralls
+
+notifications:
+  email: false
+
+addons:
+  postgresql: '9.4'
