@@ -55,8 +55,7 @@ describe('DatabaseManager', function() {
     );
   });
 
-  // TODO enable this when the knex bug #807 is fixed
-  it.skip("#knexInstance should fail to create an instance with non existing db", function () {
+  it("#knexInstance should fail to create an instance with non existing db", function () {
     return Promise.all(
       _.map(availableDatabases, function (dbManager) {
         var knex = dbManager.knexInstance(dbManager.config.knex.database);
@@ -64,7 +63,7 @@ describe('DatabaseManager', function() {
           .then(function () {
             expect("Expected error from DB").to.fail();
           }).catch(function () {
-            expect("All good!").to.be.ok();
+            expect("All good!").to.be.truthy;
           })
           .then(function () {
             knex.destroy();
@@ -91,27 +90,27 @@ describe('DatabaseManager', function() {
     return Promise.all(_.map(availableDatabases, function (dbManager) {
       return dbManager.dbVersion(dbManager.config.knex.database)
         .then(function (originalVersionInfo) {
-          expect(originalVersionInfo).to.be('none');
+          expect(originalVersionInfo).to.equal('none');
           return dbManager.migrateDb(dbManager.config.knex.database);
         })
         .then(function (migrateResponse) {
-          expect(migrateResponse[0]).to.be(1);
+          expect(migrateResponse[0]).to.equal(1);
           return dbManager.dbVersion(dbManager.config.knex.database);
         })
         .then(function (versionInfo) {
-          expect(versionInfo).to.be('20150623130922');
+          expect(versionInfo).to.equal('20150623130922');
           return dbManager.migrateDb(dbManager.config.knex.database);
         })
         .then(function (migrateResponse) {
-          expect(migrateResponse[0]).to.be(2);
+          expect(migrateResponse[0]).to.equal(2);
           return dbManager.migrateDb(dbManager.config.knex.database);
         })
         .then(function (migrateResponse) {
-          expect(migrateResponse[0]).to.be(2);
+          expect(migrateResponse[0]).to.equal(2);
           return dbManager.dbVersion(dbManager.config.knex.database);
         })
         .then(function (versionInfo) {
-          expect(versionInfo).to.be('20150623130922');
+          expect(versionInfo).to.equal('20150623130922');
           return dbManager.migrateDb(dbManager.config.knex.database);
         });
       }));
@@ -124,7 +123,7 @@ describe('DatabaseManager', function() {
           .then(function () {
             var knex = dbManager.knexInstance(dbManager.config.knex.database);
             return knex.select().from('User').then(function (result) {
-              expect(result[0].id).to.be('1');
+              expect(result[0].id).to.equal('1');
             }).then(function () {
               return knex.destroy();
             });
@@ -135,12 +134,12 @@ describe('DatabaseManager', function() {
   it("#copyDb should copy a database", function () {
     return Promise.all(
       _.map(availableDatabases, function (dbManager) {
-        return dbManager.copyDb(dbManager.config.knex.database, dbCopyName)
+        return dbManager.copyDb(dbManager.config.knex.connection.database, dbCopyName)
           .then(function () {
             var knex = dbManager.knexInstance(dbCopyName);
             return knex.select().from('User')
               .then(function (result) {
-                expect(result[0].id).to.be('1');
+                expect(result[0].id).to.equal('1');
               })
               .then(function () {
                 return knex.destroy();
@@ -157,10 +156,10 @@ describe('DatabaseManager', function() {
 
           return Promise.all([
             knex.select().from('User').then(function (result) {
-              expect(result.length).to.be(0);
+              expect(result.length).to.equal(0);
             }),
             dbManager.dbVersion(dbManager.config.knex.database).then(function (ver) {
-              expect(ver).to.be('20150623130922');
+              expect(ver).to.equal('20150623130922');
             }),
             knex('User').insert({
               username: 'new',
@@ -168,7 +167,7 @@ describe('DatabaseManager', function() {
             }).then(function () {
               return knex.select().from('User');
             }).then(function (result) {
-              expect(result[0].id).to.be('1');
+              expect(result[0].id).to.equal('1');
             })
           ])
           .then(function () {
@@ -195,8 +194,8 @@ describe('DatabaseManager', function() {
       }).then(function () {
         return knex.select().where('username', 'new4').from('User');
       }).then(function (users) {
-        expect(users.length).to.be(1);
-        expect(users[0].id).to.be('8');
+        expect(users.length).to.equal(1);
+        expect(users[0].id).to.equal('8');
       })
       .finally(function () {
         return knex.destroy();
@@ -209,7 +208,7 @@ describe('DatabaseManager', function() {
       var knex = dbManager.knexInstance(dbManager.config.knex.database);
 
       return knex.select().from('IdSeqTest').then(function (result) {
-        expect(result.length).to.be(0);
+        expect(result.length).to.equal(0);
 
         // Set min value of sequence to other than 1 (100),
         // and current value to some other value so we can detect that it has changed.
@@ -226,8 +225,8 @@ describe('DatabaseManager', function() {
       }).then(function () {
         return knex.select().from('IdSeqTest');
       }).then(function (result) {
-        expect(result.length).to.be(1);
-        expect(result[0].id).to.be('100');
+        expect(result.length).to.equal(1);
+        expect(result[0].id).to.equal('100');
       })
       .finally(function () {
         return knex.destroy();
@@ -235,8 +234,7 @@ describe('DatabaseManager', function() {
     }));
   });
 
-  // TODO enable this when the knex bug #807 is fixed
-  it.skip("#dropDb should drop a database", function () {
+  it("#dropDb should drop a database", function () {
     return Promise.all(
       _.map(availableDatabases, function (dbManager) {
         return Promise.all([
@@ -250,7 +248,7 @@ describe('DatabaseManager', function() {
             expect("Expected error from DB").to.fail();
           })
           .catch(function (err) {
-            expect("All good!").to.be.ok();
+            expect("All good!").to.be.truthy;
           })
           .then(function () {
             knex.destroy();
@@ -263,7 +261,7 @@ describe('DatabaseManager', function() {
             expect("Expected error from DB").to.fail();
           })
           .catch(function () {
-            expect("All good!").to.be.ok();
+            expect("All good!").to.be.truthy;
           })
           .then(function () {
             knex.destroy();
