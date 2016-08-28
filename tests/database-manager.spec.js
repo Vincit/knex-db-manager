@@ -5,33 +5,50 @@ var _ = require('lodash')
 
 Promise.longStackTraces();
 
+var connection = {
+  host: 'localhost',
+  database: 'dbmanger-test-database-deleteme',
+  user: 'knexdbmanagerdbowneruser',
+  password: 'knexdbmanagerdbowneruserpassword'
+};
+
+var pool = {
+  min: 0,
+  max: 10
+};
+
+var migrations = {
+  directory: __dirname + '/migrations',
+  tableName: 'testmigrations'
+};
+
 var postgresConf = {
   knex: {
     client: 'postgres',
-    connection: {
-      host: 'localhost',
-      database: 'dbmanger-test-database-deleteme',
-      // currently fail if these not found from postgres
-      user: 'postgres',
-      password: undefined
-    },
-    pool: {
-      min: 0,
-      max: 10
-    },
-    migrations: {
-      directory: __dirname + '/migrations',
-      tableName: 'testmigrations'
-    }
+    connection: connection,
+    pool: pool,
+    migrations: migrations
   },
   dbManager: {
     collate: ['fi_FI.UTF-8', 'Finnish_Finland.1252'],
-    superUser: 'postgres',
-    superPassword: undefined
+    superUser: process.env.POSTGRES_SUPERUSER || 'postgres',
+    superPassword: process.env.POSTGRES_SUPERUSER_PW || undefined
   }
 };
 
-var mysqlConf = { };
+var mysqlConf = {
+  knex: {
+    client: 'mysql',
+    connection: connection,
+    pool: pool,
+    migrations: migrations
+  },
+  dbManager: {
+    collate: ['fi_FI.UTF-8', 'Finnish_Finland.1252'],
+    superUser: 'root',
+    superPassword: undefined
+  }
+};
 
 var sqliteConf = { };
 
@@ -40,17 +57,22 @@ var sqliteConf = { };
  */
 describe('DatabaseManager', function() {
 
-  var availableDatabases = [ dbManagerFactory(postgresConf) ];
+  var availableDatabases = [ 
+    dbManagerFactory(postgresConf),
+//    dbManagerFactory(mySqlConf),    
+  ];
   var dbCopyName = 'dbmanger-test-database-copy-deleteme';
 
   before(function () {
     // Make sure that database does not exist
     return Promise.all(
       _.map(availableDatabases, function (dbManager) {
-        return Promise.all([
-          dbManager.dropDb(dbManager.config.knex.database),
-          dbManager.dropDb(dbCopyName)
-        ]);
+        return dbManager.createDbOwnerIfNotExist().then(function () {
+          return Promise.all([
+            dbManager.dropDb(dbManager.config.knex.database),
+            dbManager.dropDb(dbCopyName)
+          ]);
+        });
       })
     );
   });
@@ -77,6 +99,7 @@ describe('DatabaseManager', function() {
       _.map(availableDatabases, function (dbManager) {
         return dbManager.createDb(dbManager.config.knex.database)
           .then(function () {
+
             // connecting db should work
             var knex = dbManager.knexInstance(dbManager.config.knex.database);
             return knex.raw(';').then(function () {
