@@ -6,7 +6,8 @@
   "scripts": {
     "test": "node_modules/.bin/istanbul --config=.istanbul.yml cover _mocha -- --slow 10 --timeout 10000 --reporter spec --recursive tests",
     "test-no-coverage": "node_modules/.bin/mocha --slow 10 --timeout 10000 --reporter spec --recursive tests",
-    "coveralls": "cat ./test-coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+    "coveralls": "cat ./test-coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+    "check": "node_modules/.bin/npm-check; node_modules/.bin/nsp check"
   },
   "repository": {
     "type": "git",
@@ -38,6 +39,8 @@
     "sqlite3": "^3.1.4"
   },
   "dependencies": {
-    "knex": "^0.11.7"
+    "knex": "^0.11.7",
+    "npm-check": "^5.2.3",
+    "nsp": "^2.6.1"
   }
 }
