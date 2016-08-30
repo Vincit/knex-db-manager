@@ -17,7 +17,7 @@ directly with driver with superuser privileges for creating and dropping databas
 * ~~Oracle DB Express (TBD)~~
 * ~~MSSQL (TBD if we can get integration tests to run automatically)~~
 
-## install
+## Install
 
 You need to install `knex`, database driver and `knex-db-manager`
 
@@ -103,7 +103,7 @@ let promise = dbManager.createDb('brave-new-db');
 
 Argument|Type|Description
 --------|----|--------------------
-databaseName|string&#124; undefined| Name of the database to create, if not given the name is read from config.knex.connection.database .
+databaseName|string&#124; undefined| Name of the database to create, if not given the name is read from `config.knex.connection.database`.
 
 #### Return value
 
@@ -131,7 +131,7 @@ let promise = dbManager.dropDb('brave-new-db');
 
 Argument|Type|Description
 --------|----|--------------------
-databaseName|string&#124; undefined| Name of the database to create, if not given the name is read from config.knex.connection.database .
+databaseName|string&#124; undefined| Name of the database to drop, if not given the name is read from `config.knex.connection.database`.
 
 #### Return value
 
