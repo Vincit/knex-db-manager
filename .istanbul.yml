@@ -1,2 +1,5 @@
+instrumentation:
+  excludes: ['lib/multi-require.js', 'lib/class-utils.js']
+
 reporting:
   dir: ./test-coverage
