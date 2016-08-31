@@ -1,2 +1,2 @@
 reporting:
-  dir: ./testCoverage
+  dir: ./test-coverage
