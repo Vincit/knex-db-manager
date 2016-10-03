@@ -165,7 +165,7 @@ Type|Description
 
 ### truncateDb
 
-Truncate tables of database and reset corresponding id sequences.
+Truncate tables of the database and reset corresponding id sequences.
 
 > Truncate database `config.knex.connection.database`:
 
@@ -173,17 +173,16 @@ Truncate tables of database and reset corresponding id sequences.
 let promise = dbManager.truncateDb();
 ```
 
-> By name and ignore certain tables:
+> ignore certain tables:
 
 ```js
-let promise = dbManager.truncateDb('brave-new-db', ['migrations']);
+let promise = dbManager.truncateDb(['migrations']);
 ```
 
 #### Arguments
 
 Argument|Type|Description
 --------|----|--------------------
-databaseName|string&#124; undefined| Name of the database, if not given the name is read from `config.knex.connection.database`.
 ignoreTables|Array.&lt;string.&gt; &#124; undefined| List of tables names which should not be truncated.
 
 #### Return value
@@ -209,17 +208,9 @@ The function assumes that the primary key for each table is called `id`.
 let promise = dbManager.updateIdSequences();
 ```
 
-> By name:
-
-```js
-let promise = dbManager.updateIdSequences('breave-new-db');
-```
-
 #### Arguments
 
-Argument|Type|Description
---------|----|--------------------
-databaseName|string&#124; undefined| Name of the database, if not given the name is read from `config.knex.connection.database`.
+None
 
 #### Return value
 
@@ -237,17 +228,16 @@ Finds `knex` seed files by pattern and populate database with them.
 let promise = dbManager.populateDb();
 ```
 
-> By name and pattern:
+> with pattern:
 
 ```js
-let promise = dbManager.populateDb('breave-new-db', path.join(__dirname, 'seeds', 'test-*'));
+let promise = dbManager.populateDb(path.join(__dirname, 'seeds', 'test-*'));
 ```
 
 #### Arguments
 
 Argument|Type|Description
 --------|----|--------------------
-databaseName|string&#124; undefined| Name of the database, if not given the name is read from `config.knex.connection.database`.
 pattern|string&#124; undefined| Pattern to match files to be ran, if not given the name is read from `config.dbManager.populatePathPattern`.
 
 #### Return value
@@ -258,25 +248,17 @@ Type|Description
 
 ### migrateDb
 
-Runs `knex` migrations.
+Runs `knex` migrations configured in knex config.
 
-> Get database from `config.knex.connection.database` and pattern from `config.dbManager.populatePathPattern`:
+> Get database from `config.knex.connection.database`:
 
 ```js
 let promise = dbManager.migrateDb();
 ```
 
-> By database name:
-
-```js
-let promise = dbManager.migrateDb('breave-new-db');
-```
-
 #### Arguments
 
-Argument|Type|Description
---------|----|--------------------
-databaseName|string&#124; undefined| Name of the database, if not given the name is read from `config.knex.connection.database`.
+None
 
 #### Return value
 
@@ -296,17 +278,9 @@ Expects that migration name starts with timestamp.
 let promise = dbManager.dbVersion();
 ```
 
-> By database name:
-
-```js
-let promise = dbManager.dbVersion('breave-new-db');
-```
-
 #### Arguments
 
-Argument|Type|Description
---------|----|--------------------
-databaseName|string&#124; undefined| Name of the database, if not given the name is read from `config.knex.connection.database`.
+None
 
 #### Return value
 
@@ -336,10 +310,31 @@ Type|Description
 ----|-----------------------------
 [`Promise<void>`](http://bluebirdjs.com/docs/getting-started.html)|Resolves after connection is closed.
 
+### closeKnex
+
+Closes knex connection which is made to the database for unprivileged queries. Sometimes this is needed e.g. 
+for being able to drop database.
+
+> Close knex connection
+
+```js
+let promise = dbManager.closeKnex();
+```
+
+#### Arguments
+
+None
+
+#### Return value
+
+Type|Description
+----|-----------------------------
+[`Promise<void>`](http://bluebirdjs.com/docs/getting-started.html)|Resolves after connection is closed.
+
 
 ### knexInstance
 
-Returns `knex` query builder bound to database.
+Returns `knex` query builder bound to configured database.
 
 > Get database from `config.knex.connection.database`:
 
@@ -348,17 +343,9 @@ let knex = dbManager.knexInstance();
 knex('table').where('id', 1).then(rows => console.log('Query was ran with db owner privileges', rows));
 ```
 
-> By database name:
-
-```js
-let knex = dbManager.knexInstance('breave-new-db');
-```
-
 #### Arguments
 
-Argument|Type|Description
---------|----|--------------------
-databaseName|string&#124; undefined| Name of the database, if not given the name is read from `config.knex.connection.database`.
+None
 
 #### Return value
 
