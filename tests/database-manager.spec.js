@@ -52,6 +52,20 @@ var mysqlConf = {
 
 var sqliteConf = { };
 
+var oracleConf = {
+  knex: {
+    client: 'oracledb',
+    connection: connection,
+    pool: pool,
+    migrations: migrations
+  },
+  dbManager: {
+    collate: ['fi_FI.UTF-8', 'Finnish_Finland.1252', 'en_US.utf8', 'C.UTF-8'],
+    superUser: process.env.ORACLE_SUPERUSER || 'sys',
+    superPassword: process.env.ORACLE_SUPERUSER_PW || 'travis'
+  }
+};
+
 /**
  * All tests depends that the ones ran earlier were success.
  */
