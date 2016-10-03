@@ -110,7 +110,6 @@ describe('DatabaseManager', function() {
       _.map(availableDatabases, function (dbManager) {
         return dbManager.createDb(dbManager.config.knex.database)
           .then(function () {
-
             // connecting db should work
             var knex = dbManager.knexInstance(dbManager.config.knex.database);
             return knex.raw(';');
@@ -282,6 +281,28 @@ describe('DatabaseManager', function() {
       }));
   });
 
-  // TODO: check that create without collate works..!
+  it('should reconnect if used after .close', function () {
+    return Promise.all(_.map(availableDatabases, function (dbManager) {
+      return dbManager.close()
+        .then(function () {
+          return dbManager.dropDb();
+        })
+        .then(function () {
+          return dbManager.createDb();
+        })
+        .then(function () {
+          return dbManager.migrateDb();
+        });
+    }));
+  });
 
+  it('should create database with default collate', function () {
+    return Promise.all(_.map(availableDatabases, function (dbManager) {
+      dbManager.config.dbManager.collate = null;
+      return dbManager.dropDb()
+        .then(function () {
+          return dbManager.createDb();
+        });
+    }));
+  });
 });
