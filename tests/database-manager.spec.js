@@ -1,7 +1,8 @@
 var _ = require('lodash')
   , expect = require('chai').expect
   , dbManagerFactory = require('../lib').databaseManagerFactory
-  , Promise = require('bluebird');
+  , Promise = require('bluebird')
+  , Knex = require('knex');
 
 Promise.longStackTraces();
 
@@ -83,7 +84,7 @@ describe('DatabaseManager', function() {
       _.map(availableDatabases, function (dbManager) {
         return dbManager.createDbOwnerIfNotExist().then(function () {
           return Promise.all([
-            dbManager.dropDb(dbManager.config.knex.database),
+            dbManager.dropDb(dbManager.config.knex.connection.database),
             dbManager.dropDb(dbCopyName)
           ]);
         });
@@ -94,7 +95,7 @@ describe('DatabaseManager', function() {
   it("#knexInstance should fail to create an instance with non existing db", function () {
     return Promise.all(
       _.map(availableDatabases, function (dbManager) {
-        var knex = dbManager.knexInstance(dbManager.config.knex.database);
+        var knex = dbManager.knexInstance();
         return knex.raw(';')
           .then(function () {
             expect("Expected error from DB").to.fail();
@@ -108,10 +109,10 @@ describe('DatabaseManager', function() {
   it("#createDb should create a database", function () {
     return Promise.all(
       _.map(availableDatabases, function (dbManager) {
-        return dbManager.createDb(dbManager.config.knex.database)
+        return dbManager.createDb(dbManager.config.knex.connection.database)
           .then(function () {
             // connecting db should work
-            var knex = dbManager.knexInstance(dbManager.config.knex.database);
+            var knex = dbManager.knexInstance();
             return knex.raw(';');
           });
       }));
@@ -119,30 +120,30 @@ describe('DatabaseManager', function() {
 
   it("#migrateDb should update version and run migrations", function () {
     return Promise.all(_.map(availableDatabases, function (dbManager) {
-      return dbManager.dbVersion(dbManager.config.knex.database)
+      return dbManager.dbVersion(dbManager.config.knex.connection.database)
         .then(function (originalVersionInfo) {
           expect(originalVersionInfo).to.equal('none');
-          return dbManager.migrateDb(dbManager.config.knex.database);
+          return dbManager.migrateDb(dbManager.config.knex.connection.database);
         })
         .then(function (migrateResponse) {
           expect(migrateResponse[0]).to.equal(1);
-          return dbManager.dbVersion(dbManager.config.knex.database);
+          return dbManager.dbVersion(dbManager.config.knex.connection.database);
         })
         .then(function (versionInfo) {
           expect(versionInfo).to.equal('20150623130922');
-          return dbManager.migrateDb(dbManager.config.knex.database);
+          return dbManager.migrateDb(dbManager.config.knex.connection.database);
         })
         .then(function (migrateResponse) {
           expect(migrateResponse[0]).to.equal(2);
-          return dbManager.migrateDb(dbManager.config.knex.database);
+          return dbManager.migrateDb(dbManager.config.knex.connection.database);
         })
         .then(function (migrateResponse) {
           expect(migrateResponse[0]).to.equal(2);
-          return dbManager.dbVersion(dbManager.config.knex.database);
+          return dbManager.dbVersion(dbManager.config.knex.connection.database);
         })
         .then(function (versionInfo) {
           expect(versionInfo).to.equal('20150623130922');
-          return dbManager.migrateDb(dbManager.config.knex.database);
+          return dbManager.migrateDb(dbManager.config.knex.connection.database);
         });
       }));
   });
@@ -152,7 +153,7 @@ describe('DatabaseManager', function() {
       _.map(availableDatabases, function (dbManager) {
         return dbManager.populateDb(__dirname + '/populate/*.js')
           .then(function () {
-            var knex = dbManager.knexInstance(dbManager.config.knex.database);
+            var knex = dbManager.knexInstance();
             return knex.select().from('User').then(function (result) {
               expect(result[0].id).to.equal('1');
             });
@@ -165,10 +166,13 @@ describe('DatabaseManager', function() {
       _.map(availableDatabases, function (dbManager) {
         return dbManager.copyDb(dbManager.config.knex.connection.database, dbCopyName)
           .then(function () {
-            var knex = dbManager.knexInstance(dbCopyName);
+            var knex = knexWithCustomDb(dbManager, dbCopyName);
             return knex.select().from('User')
               .then(function (result) {
                 expect(result[0].id).to.equal('1');
+              })
+              .finally(function () {
+                knex.destroy();
               });
           });
       }));
@@ -176,15 +180,15 @@ describe('DatabaseManager', function() {
 
   it("#truncateDb should truncate a database", function () {
     return Promise.all(_.map(availableDatabases, function (dbManager) {
-      return dbManager.truncateDb(dbManager.config.knex.database)
+      return dbManager.truncateDb()
         .then(function (result) {
-          var knex = dbManager.knexInstance(dbManager.config.knex.database);
+          var knex = dbManager.knexInstance();
 
           return Promise.all([
             knex.select().from('User').then(function (result) {
               expect(result.length).to.equal(0);
             }),
-            dbManager.dbVersion(dbManager.config.knex.database).then(function (ver) {
+            dbManager.dbVersion(dbManager.config.knex.connection.database).then(function (ver) {
               expect(ver).to.equal('20150623130922');
             }),
             knex('User').insert({
@@ -202,7 +206,7 @@ describe('DatabaseManager', function() {
 
   it("#updateIdSequences should update primary key sequences", function () {
     return Promise.all(_.map(availableDatabases, function (dbManager) {
-      var knex = dbManager.knexInstance(dbManager.config.knex.database);
+      var knex = dbManager.knexInstance();
 
       return knex('User').insert([
         { id: 5, username: 'new1', email: 'new_1@example.com' },
@@ -225,7 +229,7 @@ describe('DatabaseManager', function() {
 
   it("#updateIdSequences should work with empty table and with minimum value other than 1", function () {
     return Promise.all(_.map(availableDatabases, function (dbManager) {
-      var knex = dbManager.knexInstance(dbManager.config.knex.database);
+      var knex = dbManager.knexInstance();
 
       return knex.select().from('IdSeqTest').then(function (result) {
         expect(result.length).to.equal(0);
@@ -255,12 +259,12 @@ describe('DatabaseManager', function() {
     return Promise.all(
       _.map(availableDatabases, function (dbManager) {
         return Promise.all([
-          dbManager.dropDb(dbManager.config.knex.database),
+          dbManager.dropDb(dbManager.config.knex.connection.database),
           dbManager.dropDb(dbCopyName),
           dbManager.dropDb(dbCopyName) // this should not fail
         ]).then(function () {
           // test db was dropped
-          var knex = dbManager.knexInstance(dbManager.config.knex.database);
+          var knex = dbManager.knexInstance();
           return knex.raw(';').then(function () {
             expect("Expected error from DB").to.fail();
           })
@@ -269,13 +273,15 @@ describe('DatabaseManager', function() {
           });
 
         }).then(function () {
-          // copy db was dropped
-          var knex = dbManager.knexInstance(dbCopyName);
+          var knex = knexWithCustomDb(dbManager, dbCopyName);
           return knex.raw(';').then(function () {
             expect("Expected error from DB").to.fail();
           })
           .catch(function () {
             expect("All good!").to.be.truthy;
+          })
+          .finally(function () {
+            knex.destroy();
           });
         });
       }));
@@ -306,3 +312,9 @@ describe('DatabaseManager', function() {
     }));
   });
 });
+
+function knexWithCustomDb(dbManager, dbName) {
+  var tempKnex = _.cloneDeep(dbManager.config.knex);
+  tempKnex.client.database = dbName; 
+  return Knex(tempKnex);
+}
