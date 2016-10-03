@@ -100,9 +100,6 @@ describe('DatabaseManager', function() {
             expect("Expected error from DB").to.fail();
           }).catch(function () {
             expect("All good!").to.be.truthy;
-          })
-          .then(function () {
-            knex.destroy();
           });
       })
     );
@@ -116,9 +113,7 @@ describe('DatabaseManager', function() {
 
             // connecting db should work
             var knex = dbManager.knexInstance(dbManager.config.knex.database);
-            return knex.raw(';').then(function () {
-              return knex.destroy();
-            });
+            return knex.raw(';');
           });
       }));
   });
@@ -156,13 +151,11 @@ describe('DatabaseManager', function() {
   it("#populateDb should populate data from given directory", function () {
     return Promise.all(
       _.map(availableDatabases, function (dbManager) {
-        return dbManager.populateDb(dbManager.config.knex.database, __dirname + '/populate/*.js')
+        return dbManager.populateDb(__dirname + '/populate/*.js')
           .then(function () {
             var knex = dbManager.knexInstance(dbManager.config.knex.database);
             return knex.select().from('User').then(function (result) {
               expect(result[0].id).to.equal('1');
-            }).then(function () {
-              return knex.destroy();
             });
           });
       }));
@@ -177,9 +170,6 @@ describe('DatabaseManager', function() {
             return knex.select().from('User')
               .then(function (result) {
                 expect(result[0].id).to.equal('1');
-              })
-              .then(function () {
-                return knex.destroy();
               });
           });
       }));
@@ -206,10 +196,7 @@ describe('DatabaseManager', function() {
             }).then(function (result) {
               expect(result[0].id).to.equal('1');
             })
-          ])
-          .then(function () {
-            return knex.destroy();
-          });
+          ]);
         });
     }));
   });
@@ -233,9 +220,6 @@ describe('DatabaseManager', function() {
       }).then(function (users) {
         expect(users.length).to.equal(1);
         expect(users[0].id).to.equal('8');
-      })
-      .finally(function () {
-        return knex.destroy();
       });
     }));
   });
@@ -253,7 +237,7 @@ describe('DatabaseManager', function() {
       }).then(function () {
         // DB manager caches the sequence names and min values,
         // so the cache needs to be reset.
-        dbManager.cachedIdSequences_ = null;
+        dbManager._cachedIdSequences = null;
         return dbManager.updateIdSequences();
       }).then(function () {
         return knex('IdSeqTest').insert({
@@ -264,9 +248,6 @@ describe('DatabaseManager', function() {
       }).then(function (result) {
         expect(result.length).to.equal(1);
         expect(result[0].id).to.equal('100');
-      })
-      .finally(function () {
-        return knex.destroy();
       });
     }));
   });
@@ -286,9 +267,6 @@ describe('DatabaseManager', function() {
           })
           .catch(function (err) {
             expect("All good!").to.be.truthy;
-          })
-          .then(function () {
-            knex.destroy();
           });
 
         }).then(function () {
@@ -299,12 +277,11 @@ describe('DatabaseManager', function() {
           })
           .catch(function () {
             expect("All good!").to.be.truthy;
-          })
-          .then(function () {
-            knex.destroy();
           });
         });
       }));
   });
+
+  // TODO: check that create without collate works..!
 
 });
