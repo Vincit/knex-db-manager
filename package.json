@@ -1,6 +1,6 @@
 {
   "name": "knex-db-manager",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Collection of administrative database operations for knex supported databases",
   "main": "lib/index.js",
   "scripts": {
@@ -31,19 +31,19 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "coveralls": "^2.11.9",
-    "istanbul": "^0.4.4",
-    "mocha": "^2.5.3",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.1.0",
     "mysql": "^2.11.1",
-    "pg": "^6.0.2",
-    "pg-escape": "^0.2.0",
-    "sqlite3": "^3.1.4",
     "npm-check": "^5.2.3",
-    "nsp": "^2.6.1"
+    "nsp": "^2.6.1",
+    "pg": "^6.1.0",
+    "pg-escape": "^0.2.0",
+    "sqlite3": "^3.1.4"
   },
   "dependencies": {
-    "bluebird": "^3.4.4",
-    "glob": "^7.0.6",
-    "knex": "^0.11.7",
-    "lodash": "^4.15.0"
+    "bluebird": "^3.4.6",
+    "glob": "^7.1.0",
+    "knex": ">=0.12.0",
+    "lodash": "^4.16.2"
   }
 }
