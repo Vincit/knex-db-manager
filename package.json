@@ -23,7 +23,7 @@
     "sqlite3"
   ],
   "author": "Mikael Lepistö",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/elhigu/knex-db-manager/issues"
   },
@@ -31,6 +31,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "coveralls": "^2.11.9",
+    "gatsby": "^0.12.28",
     "istanbul": "^0.4.5",
     "mocha": "^3.1.0",
     "mysql": "^2.11.1",
