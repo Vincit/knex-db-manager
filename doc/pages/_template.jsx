@@ -57,9 +57,11 @@ module.exports = React.createClass({
   },
 
   componentWillMount() {
-    var mql = window.matchMedia(`(min-width: 800px)`);
-    mql.addListener(this.mediaQueryChanged);
-    this.setState({mql: mql, sidebarDocked: mql.matches});
+    if (typeof window !== 'undefined') {
+      var mql = window.matchMedia(`(min-width: 800px)`);
+      mql.addListener(this.mediaQueryChanged);
+      this.setState({mql: mql, sidebarDocked: mql.matches});
+    }
   },
 
   componentWillUnmount() {

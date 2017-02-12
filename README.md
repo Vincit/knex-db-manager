@@ -63,7 +63,7 @@ let config = {
   }
 };
 
-let dbManager = require('knex-db-manager')(config);
+let dbManager = require('knex-db-manager').databaseManagerFactory(config);
 ```
 
 ### `createDbOwnerIfNotExist(): Promise<void>` {#createDbOwnerIfNotExist}
