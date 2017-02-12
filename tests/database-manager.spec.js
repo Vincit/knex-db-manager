@@ -180,7 +180,7 @@ describe('DatabaseManager', function() {
 
   it("#truncateDb should truncate a database", function () {
     return Promise.all(_.map(availableDatabases, function (dbManager) {
-      return dbManager.truncateDb()
+      return dbManager.truncateDb([migrations.tableName])
         .then(function (result) {
           var knex = dbManager.knexInstance();
 
