@@ -1,15 +1,17 @@
 # Changelog
 
-## 0.2.0
+### 0.3.0
 
-### What's new
+ * Added docuementation pages
 
- * Nothing... just template to fill.
+#### Breaking changes
 
-### Breaking changes
+ * Removed automatic ingnore of migrations table from truncate DB 
 
- * Daa.
+### 0.2.0
 
-## 0.1.0
+ * Initial changelog entry
 
-First release.
+#### Breaking changes
+
+ * All functionality 
