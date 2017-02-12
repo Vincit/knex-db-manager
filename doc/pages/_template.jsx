@@ -104,7 +104,7 @@ module.exports = React.createClass({
         return (
           <div className={'menu-item level-' + child.level} key={child.anchor}>
             <Link
-              to={{ pathname: '/', hash: '#' + (child.anchor || child.headerText)}}
+              to={{ pathname: prefixLink('/'), hash: '#' + (child.anchor || child.headerText)}}
               className="menu-link"
               onClick={this.toggleOpen}
             >
@@ -121,7 +121,7 @@ module.exports = React.createClass({
         </div>
         <div className="menu-item">
           <Link
-            to="/changelog/"
+            to={prefixLink("/changelog/")}
             className="menu-link"
             onClick={this.toggleOpen}
           >
@@ -138,7 +138,7 @@ module.exports = React.createClass({
         {!this.state.sidebarDocked &&
          <a onClick={this.toggleOpen} href="#" className="menu-btn">=</a>}
         <Link
-          to={this.state.sidebarDocked ? '/' : undefined}
+          to={this.state.sidebarDocked ? prefixLink('/') : undefined}
           onClick={this.toggleOpen}
           className="text"
         >

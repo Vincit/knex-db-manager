@@ -104,6 +104,10 @@ html, body {
   background: #aaa;
 }
 
+.menu-item:hover * {
+  background: #aaa;
+}
+
 .menu-item.level-3 {
   margin-left: 1em;
 }
