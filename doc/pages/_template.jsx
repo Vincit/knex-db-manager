@@ -1,6 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router'
-import { Container, Grid, Span } from 'react-responsive-grid'
+import { Sticky, StickyContainer } from 'react-sticky'
+import Sidebar from 'react-sidebar';
+
 import { prefixLink } from 'gatsby-helpers'
 import includes from 'underscore.string/include'
 import { colors, activeColors } from 'utils/colors'
@@ -8,11 +10,36 @@ import { colors, activeColors } from 'utils/colors'
 import typography from 'utils/typography'
 import { config } from 'config'
 
+const hljs = require('highlight.js');
+
 // Import styles.
 import 'css/main.css'
 import 'css/github.css'
 
 const { rhythm, adjustFontSizeTo } = typography
+
+const styles = {
+  sidebar: {
+    width: 256,
+    height: '100%',
+  },
+  sidebarLink: {
+    display: 'block',
+    paddingBottom: '5px',
+    color: '#757575',
+    textDecoration: 'none',
+  },
+  divider: {
+    margin: '8px 0',
+    height: 1,
+    backgroundColor: '#757575',
+  },
+  content: {
+    padding: '16px',
+    height: '100%',
+    backgroundColor: 'white',
+  },
+};
 
 module.exports = React.createClass({
   propTypes () {
@@ -20,107 +47,122 @@ module.exports = React.createClass({
       children: React.PropTypes.object,
     }
   },
+
+  getInitialState() {
+    return {sidebarOpen: false, sidebarDocked: false};
+  },
+
+  onSetSidebarOpen(open) {
+    this.setState({sidebarOpen: open});
+  },
+
+  componentWillMount() {
+    var mql = window.matchMedia(`(min-width: 800px)`);
+    mql.addListener(this.mediaQueryChanged);
+    this.setState({mql: mql, sidebarDocked: mql.matches});
+  },
+
+  componentWillUnmount() {
+    this.state.mql.removeListener(this.mediaQueryChanged);
+  },
+
+  mediaQueryChanged() {
+    this.setState({
+      sidebarDocked: this.state.mql.matches,
+      sidebarOpen: false
+    });
+  },
+
+  toggleOpen() {
+    const shouldBeOpen = this.state.sidebarDocked || !this.state.sidebarOpen;
+    this.setState({sidebarOpen: shouldBeOpen})
+  },
+
   render () {
     const docsActive = includes(this.props.location.pathname, '/docs/')
-    const examplesActive = includes(this.props.location.pathname, '/examples/')
+
+    const sideMenuItems = this.props.route.indexRoute.page.data.toc
+      .filter(i => !!i.anchor).map((child) => {
+        let header = child.headerText;
+        // <span><small>{returnValue}</small><br/>{rest}</span>
+        if (child.headerText[0] === '`') {
+          const clean = child.headerText.replace(/`/g, '');
+          const startOfRetval = clean.lastIndexOf(':');
+          const returnValue = clean.substr(startOfRetval+1);
+          const rest = clean.substr(0, startOfRetval);
+
+          header =
+            <span className="code">
+              <div dangerouslySetInnerHTML={{ __html:
+              hljs.highlight('typescript', returnValue).value }} />
+              <div dangerouslySetInnerHTML={{ __html:
+              hljs.highlight('typescript', rest).value }} />
+            </span>
+        }
+        return (
+          <div className={'menu-item level-' + child.level} key={child.anchor}>
+            <Link
+              to={{ pathname: '/', hash: '#' + (child.anchor || child.headerText)}}
+              className="menu-link"
+              onClick={this.toggleOpen}
+            >
+              {header}
+            </Link>
+          </div>
+        );
+      });
+
+    const sideMenu = (
+      <div className="side-menu">
+        <div className="menu-item">
+          <a href="https://github.com/Vincit/knex-db-manager" className="menu-link">Github</a>
+        </div>
+        <div className="menu-item">
+          <Link
+            to="/changelog/"
+            className="menu-link"
+            onClick={this.toggleOpen}
+          >
+          Changelog
+          </Link>
+        </div>
+        <div style={styles.divider} />
+        {sideMenuItems}
+      </div>
+    );
+
+    const headerContent = (
+      <span className="content">
+        {!this.state.sidebarDocked &&
+         <a onClick={this.toggleOpen} href="#" className="menu-btn">=</a>}
+        <Link
+          to={this.state.sidebarDocked ? '/' : undefined}
+          onClick={this.toggleOpen}
+          className="text"
+        >
+          knex-db-manager
+        </Link>
+      </span>
+    );
 
     return (
       <div>
-        <div
-          style={{
-            background: colors.bg,
-            color: colors.fg,
-            marginBottom: rhythm(1.5),
-          }}
-        >
-          <Container
-            style={{
-              maxWidth: 960,
-              paddingLeft: rhythm(3/4),
-            }}
-          >
-            <Grid
-              columns={12}
-              style={{
-                padding: `${rhythm(3/4)} 0`,
-              }}
-            >
-              <Span
-                columns={4}
-                style={{
-                  height: 24, // Ugly hack. How better to constrain height of div?
-                }}
-              >
-                <Link
-                  to={prefixLink('/')}
-                  style={{
-                    textDecoration: 'none',
-                    color: colors.fg,
-                    fontSize: adjustFontSizeTo('25.5px').fontSize,
-                  }}
-                >
-                  {config.siteTitle}
-                </Link>
-              </Span>
-              <Span columns={8} last>
-                <a
-                  style={{
-                    float: 'right',
-                    color: colors.fg,
-                    textDecoration: 'none',
-                    marginLeft: rhythm(1/2),
-                  }}
-                  href="https://github.com/gatsbyjs/gatsby"
-                >
-                  Github
-                </a>
-                <Link
-                  to={prefixLink('/examples/')}
-                  style={{
-                    background: examplesActive ? activeColors.bg : colors.bg,
-                    color: examplesActive ? activeColors.fg : colors.fg,
-                    float: 'right',
-                    textDecoration: 'none',
-                    paddingLeft: rhythm(1/2),
-                    paddingRight: rhythm(1/2),
-                    paddingBottom: rhythm(3/4),
-                    marginBottom: rhythm(-1),
-                    paddingTop: rhythm(1),
-                    marginTop: rhythm(-1),
-                  }}
-                >
-                  Examples
-                </Link>
-                <Link
-                  to={prefixLink('/docs/')}
-                  style={{
-                    background: docsActive ? activeColors.bg : colors.bg,
-                    color: docsActive ? activeColors.fg : colors.fg,
-                    float: 'right',
-                    textDecoration: 'none',
-                    paddingLeft: rhythm(1/2),
-                    paddingRight: rhythm(1/2),
-                    paddingBottom: rhythm(3/4),
-                    marginBottom: rhythm(-1),
-                    paddingTop: rhythm(1),
-                    marginTop: rhythm(-1),
-                  }}
-                >
-                  Documentation
-                </Link>
-              </Span>
-            </Grid>
-          </Container>
+        <div className="header-bar">
+          <h1>{headerContent}</h1>
         </div>
-        <Container
-          style={{
-            maxWidth: 960,
-            padding: `${rhythm(1)} ${rhythm(3/4)}`,
-            paddingTop: 0,
-          }}
-        >
-          {this.props.children}
-        </Container>
+
+        <div className="content-area">
+          <Sidebar
+            sidebar={sideMenu}
+            open={this.state.sidebarOpen}
+            docked={this.state.sidebarDocked}
+            onSetOpen={this.onSetSidebarOpen}
+          >
+            <div className="main-content">
+              {this.props.children}
+            </div>
+          </Sidebar>
+        </div>
       </div>
     )
   },

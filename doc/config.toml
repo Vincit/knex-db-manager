@@ -2,10 +2,5 @@ siteTitle="Knex Database Manager"
 baseColor = "#884499"
 linkPrefix = "/knex-db-manager"
 docPages = [
-  "/docs/",
-  "/docs/getting-started/",
-  "/docs/how-to-run/",
-  "/docs/some-react-code/",
-  "/docs/the-next-step/",
-  "/docs/conclusion/",
+  "/changelog/",
 ]

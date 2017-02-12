@@ -27,9 +27,10 @@ module.exports = React.createClass({
           <meta charSet="utf-8" />
           <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
           <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0"
+            name='viewport'
+            content='initial-scale=1.0,width=device-width,user-scalable=no'
           />
+          <meta name='theme-color' content='#03a9f4' />
           <title>{title}</title>
           <TypographyStyle typography={typography} />
           <GoogleFont typography={typography} />
@@ -40,24 +41,6 @@ module.exports = React.createClass({
                 `
                   a {
                     color: ${colors.bg};
-                  }
-                  .ball-0 {
-                    background-image: url(${prefixLink('/docs/some-react-code/0.jpg')});
-                  }
-                  .ball-1 {
-                    background-image: url(${prefixLink('/docs/some-react-code/1.jpg')});
-                  }
-                  .ball-2 {
-                    background-image: url(${prefixLink('/docs/some-react-code/2.jpg')});
-                  }
-                  .ball-3 {
-                    background-image: url(${prefixLink('/docs/some-react-code/3.jpg')});
-                  }
-                  .ball-4 {
-                    background-image: url(${prefixLink('/docs/some-react-code/4.jpg')});
-                  }
-                  .ball-5 {
-                    background-image: url(${prefixLink('/docs/some-react-code/5.jpg')});
                   }
                 `,
             }}

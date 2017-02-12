@@ -1,15 +1,19 @@
+---
+title: Tool to create / drop / truncate / copy SQL database
+---
+
 [![Build Status](https://travis-ci.org/Vincit/knex-db-manager.svg?branch=master)](https://travis-ci.org/Vincit/knex-db-manager)
 [![Coverage Status](https://coveralls.io/repos/github/Vincit/knex-db-manager/badge.svg?branch=master)](https://coveralls.io/github/Vincit/knex-db-manager?branch=master)
 
-# Tool to create / drop / truncate databases and to run knex migration / populate scripts
+Pretty useful when writing scripts to initialize database for fresh install or
+dropping / creating new database when running tests and for truncating database
+between tests.
 
-Pretty useful when writing scripts to initialize database for fresh install or dropping / creating
-new database when running tests and for truncating database between tests.
+Library uses knex connection for non administrative queries, but also creates
+priviliged connection directly with driver with superuser privileges for creating
+and dropping databases / roles.
 
-Library uses knex connection for non administrative queries, but also creates priviliged connection
-directly with driver with superuser privileges for creating and dropping databases / roles.
-
-## Supported databases
+## Supported Databases {#SupportedDatabases}
 
 * PostgreSQL
 * ~~MySQL (TBD)~~
@@ -17,15 +21,15 @@ directly with driver with superuser privileges for creating and dropping databas
 * ~~Oracle DB Express (TBD)~~
 * ~~MSSQL (TBD if we can get integration tests to run automatically)~~
 
-## Install
+## Install {#install}
 
 You need to install `knex`, database driver and `knex-db-manager`
 
 ```
-npm install knex-db-manager knex pg
+npm install knex-db-manager knex pg pg-escape
 ```
 
-## API & Usage
+## API & Usage {#apiAndUsage}
 
 Database manager is initialized with normal `knex` configuration and with
 superuser account which should be able to create / drop roles and databases.
@@ -62,9 +66,7 @@ let config = {
 let dbManager = require('knex-db-manager')(config);
 ```
 
-## DatabaseManager
-
-### createDbOwnerIfNotExist
+### `createDbOwnerIfNotExist(): Promise<void>` {#createDbOwnerIfNotExist}
 
 Creates the user, which is described in `knex` configuration. This user is used as
 the database owner when creating new databases.
@@ -73,19 +75,14 @@ the database owner when creating new databases.
 let promise = dbManager.createDbOwnerIfNotExist();
 ```
 
-#### Arguments
 
-None
+### `createDb(dbName?: string): Promise<void>` {#createDb}
 
-#### Return value
+Creates database described in `knex` configuration or by given name. Owner of the
+created database is set to be the `config.knex.connection.user`.
 
-Type|Description
-----|-----------------------------
-[`Promise<void>`](http://bluebirdjs.com/docs/getting-started.html)|Promise will be resolved on success and rejected on unexpected error.
-
-### createDb
-
-Creates database described in `knex` configuration or by given name.
+`dbName` is the name of the database to be created, if not given the name is read
+from `config.knex.connection.database`.
 
 > Read database from `config.knex.connection.database`:
 
@@ -99,22 +96,15 @@ let promise = dbManager.createDb();
 let promise = dbManager.createDb('brave-new-db');
 ```
 
-#### Arguments
 
-Argument|Type|Description
---------|----|--------------------
-databaseName|string&#124; undefined| Name of the database, if not given the name is read from `config.knex.connection.database`.
+### `dropDb(dbName?: string): Promise<void>` {#dropDb}
 
-#### Return value
+Drops database described in `knex` configuration or by given name. Note
+that if there are any active connections to the database that is being
+dropped, the drop command might fail.
 
-Type|Description
-----|-----------------------------
-[`Promise<void>`](http://bluebirdjs.com/docs/getting-started.html)|Promise the will be resolved on success and rejected on any error.
-
-### dropDb
-
-Drops database described in `knex` configuration or by given name. Remember that if DB has active
-connections trying to drop DB may fail.
+`dbName` is the name of the database to be dropped, if not given the name
+is read from `config.knex.connection.database`.
 
 > Drop database `config.knex.connection.database`:
 
@@ -128,21 +118,13 @@ let promise = dbManager.dropDb();
 let promise = dbManager.dropDb('brave-new-db');
 ```
 
-#### Arguments
 
-Argument|Type|Description
---------|----|--------------------
-databaseName|string&#124; undefined| Name of the database, if not given the name is read from `config.knex.connection.database`.
+### `copyDb(fromDbName: string, toDbName: string): Promise<void>` {#copyDb}
 
-#### Return value
+Clones database to another name remotely on db serverside (may be useful e.g.
+to make backup before running migrations).
 
-Type|Description
-----|-----------------------------
-[`Promise<void>`](http://bluebirdjs.com/docs/getting-started.html)|Promise the will be resolved on success and rejected on any error.
-
-### copyDb
-
-Clones database to another name remotely on db serverside (may be useful e.g. to make backup before running migrations).
+New database `toDatabaseName` will be created containing a copy of `fromDbName`.
 
 > Making copy of DB:
 
@@ -150,22 +132,12 @@ Clones database to another name remotely on db serverside (may be useful e.g. to
 let promise = dbManager.copyDb('brave-new-db', 'brave-new-db-copy');
 ```
 
-#### Arguments
 
-Argument|Type|Description
---------|----|--------------------
-fromDatabaseName|string| Source database name.
-toDatabaseName|string| Name of the new database which will be created.
-
-#### Return value
-
-Type|Description
-----|-----------------------------
-[`Promise<void>`](http://bluebirdjs.com/docs/getting-started.html)|Promise the will be resolved on success and rejected on any error.
-
-### truncateDb
+### `truncateDb(ignoreTables?: string[]): Promise<void>` {#truncateDb}
 
 Truncate tables of the database and reset corresponding id sequences.
+
+`ignoreTables` list of tables names which should not be truncated.
 
 > Truncate database `config.knex.connection.database`:
 
@@ -179,26 +151,16 @@ let promise = dbManager.truncateDb();
 let promise = dbManager.truncateDb(['migrations']);
 ```
 
-#### Arguments
 
-Argument|Type|Description
---------|----|--------------------
-ignoreTables|Array.&lt;string.&gt; &#124; undefined| List of tables names which should not be truncated.
+### `updateIdSequences(): Promise<void>` {#updateIdSequences}
 
-#### Return value
+Updates all primary key id sequences to be biggest id in table + 1.
+So after running this next `INSERT` to table will get valid id for
+the row from the sequence.
 
-Type|Description
-----|-----------------------------
-[`Promise<void>`](http://bluebirdjs.com/docs/getting-started.html)|Promise the will be resolved on success and rejected on any error.
-
-### updateIdSequences
-
-Updates all primary key id sequences to be biggest id in table + 1. So after running this next
-`INSERT` to table will get valid id for the row from the sequence.
-
-This was motivated by some people who liked to create test data with hard coded ids, 
-so this helps them to make app to work normally after adding rows to tables, which has 
-not used id sequence to get ids.
+This was motivated by some people who liked to create test data with
+hard coded ids, so this helps them to make app to work normally after
+adding rows to tables, which has not used id sequence to get ids.
 
 The function assumes that the primary key for each table is called `id`.
 
@@ -208,21 +170,16 @@ The function assumes that the primary key for each table is called `id`.
 let promise = dbManager.updateIdSequences();
 ```
 
-#### Arguments
 
-None
-
-#### Return value
-
-Type|Description
-----|-----------------------------
-[`Promise<void>`](http://bluebirdjs.com/docs/getting-started.html)|Promise the will be resolved on success and rejected on any error.
-
-### populateDb
+### `populateDb(glob: string): Promise<void>` {#populateDb}
 
 Finds `knex` seed files by pattern and populate database with them.
 
-> Get database from `config.knex.connection.database` and pattern from `config.dbManager.populatePathPattern`:
+`glob` is a pattern to match files to be ran, if not given the name is
+read from `config.dbManager.populatePathPattern`.
+
+> Get database from `config.knex.connection.database` and pattern
+> from `config.dbManager.populatePathPattern`:
 
 ```js
 let promise = dbManager.populateDb();
@@ -231,22 +188,13 @@ let promise = dbManager.populateDb();
 > with pattern:
 
 ```js
-let promise = dbManager.populateDb(path.join(__dirname, 'seeds', 'test-*'));
+let promise = dbManager.populateDb(
+    path.join(__dirname, 'seeds', 'test-*')
+  );
 ```
 
-#### Arguments
 
-Argument|Type|Description
---------|----|--------------------
-pattern|string&#124; undefined| Pattern to match files to be ran, if not given the name is read from `config.dbManager.populatePathPattern`.
-
-#### Return value
-
-Type|Description
-----|-----------------------------
-[`Promise<void>`](http://bluebirdjs.com/docs/getting-started.html)|Promise the will be resolved on success and rejected on any error.
-
-### migrateDb
+### `migrateDb(): Promise<void>` {#migrateDb}
 
 Runs `knex` migrations configured in knex config.
 
@@ -256,21 +204,16 @@ Runs `knex` migrations configured in knex config.
 let promise = dbManager.migrateDb();
 ```
 
-#### Arguments
 
-None
-
-#### Return value
-
-Type|Description
-----|-----------------------------
-[`Promise<void>`](http://bluebirdjs.com/docs/getting-started.html)|Promise the will be resolved on success and rejected on any error.
-
-### dbVersion
+### `dbVersion(): Promise<string>` {#dbVersion}
 
 Checks which migrations has been ran to database.
 
 Expects that migration name starts with timestamp.
+
+If no migrations has been run, promise resolves to `'none'`. Otherwise
+resolves to first numbers of latest migration file ran e.g. for
+`20141024070315_test_schema.js` version will be `'20141024070315'`.
 
 > Get database from `config.knex.connection.database`:
 
@@ -278,21 +221,10 @@ Expects that migration name starts with timestamp.
 let promise = dbManager.dbVersion();
 ```
 
-#### Arguments
 
-None
+### `close(): Promise<void>` {#close}
 
-#### Return value
-
-Type|Description
-----|-----------------------------
-[`Promise<string>`](http://bluebirdjs.com/docs/getting-started.html)|
-If no migrations run resolves `'none'`. Otherwise resolves to first numbers of latest migration 
-file ran e.g. for `20141024070315_test_schema.js` version will be `'20141024070315'`.
-
-### close
-
-Closes connection to database server. 
+Closes the single privileged connection to database server.
 
 > Kill database connection:
 
@@ -300,20 +232,11 @@ Closes connection to database server.
 let promise = dbManager.close();
 ```
 
-#### Arguments
 
-None
+### `closeKnex(): Promise<void>` {#closeKnex}
 
-#### Return value
-
-Type|Description
-----|-----------------------------
-[`Promise<void>`](http://bluebirdjs.com/docs/getting-started.html)|Resolves after connection is closed.
-
-### closeKnex
-
-Closes knex connection which is made to the database for unprivileged queries. Sometimes this is needed e.g. 
-for being able to drop database.
+Closes knex connection which is made to the database for unprivileged
+queries. Sometimes this is needed e.g. for being able to drop database.
 
 > Close knex connection
 
@@ -321,18 +244,8 @@ for being able to drop database.
 let promise = dbManager.closeKnex();
 ```
 
-#### Arguments
 
-None
-
-#### Return value
-
-Type|Description
-----|-----------------------------
-[`Promise<void>`](http://bluebirdjs.com/docs/getting-started.html)|Resolves after connection is closed.
-
-
-### knexInstance
+### `knexInstance(): QueryBuilder` {#knexInstance}
 
 Returns `knex` query builder bound to configured database.
 
@@ -340,15 +253,8 @@ Returns `knex` query builder bound to configured database.
 
 ```js
 let knex = dbManager.knexInstance();
-knex('table').where('id', 1).then(rows => console.log('Query was ran with db owner privileges', rows));
+knex('table').where('id', 1)
+  .then(rows => {
+    console.log('Query was ran with db owner privileges', rows);
+  });
 ```
-
-#### Arguments
-
-None
-
-#### Return value
-
-Type|Description
-----|-----------------------------
-[`QueryBuilder`](http://knexjs.org/#Builder)|Knex query builder bound to given database.
