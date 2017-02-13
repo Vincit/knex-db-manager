@@ -1,11 +1,10 @@
 ---
-
-[![Greenkeeper badge](https://badges.greenkeeper.io/Vincit/knex-db-manager.svg)](https://greenkeeper.io/)
 title: Tool to create / drop / truncate / copy SQL database
 ---
 
 [![Build Status](https://travis-ci.org/Vincit/knex-db-manager.svg?branch=master)](https://travis-ci.org/Vincit/knex-db-manager)
 [![Coverage Status](https://coveralls.io/repos/github/Vincit/knex-db-manager/badge.svg?branch=master)](https://coveralls.io/github/Vincit/knex-db-manager?branch=master)
+[![Greenkeeper badge](https://badges.greenkeeper.io/Vincit/knex-db-manager.svg)](https://greenkeeper.io/)
 
 Pretty useful when writing scripts to initialize database for fresh install or
 dropping / creating new database when running tests and for truncating database
