@@ -1,4 +1,6 @@
 ---
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/Vincit/knex-db-manager.svg)](https://greenkeeper.io/)
 title: Tool to create / drop / truncate / copy SQL database
 ---
 
