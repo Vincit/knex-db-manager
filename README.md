@@ -17,7 +17,7 @@ and dropping databases / roles.
 ## Supported Databases {#SupportedDatabases}
 
 * PostgreSQL
-* ~~MySQL (TBD)~~
+* MySQL
 * ~~SQLite3 (TBD even though most of the functions won't make sense with this)~~
 * ~~Oracle DB Express (TBD)~~
 * ~~MSSQL (TBD if we can get integration tests to run automatically)~~
@@ -127,6 +127,8 @@ to make backup before running migrations).
 
 New database `toDatabaseName` will be created containing a copy of `fromDbName`.
 
+Note: This method is not supported with MySQL (yet).
+
 > Making copy of DB:
 
 ```js
@@ -164,6 +166,8 @@ hard coded ids, so this helps them to make app to work normally after
 adding rows to tables, which has not used id sequence to get ids.
 
 The function assumes that the primary key for each table is called `id`.
+
+Note: This method is not supported with MySQL (yet).
 
 > Reset sequence of database `config.knex.connection.database`:
 
