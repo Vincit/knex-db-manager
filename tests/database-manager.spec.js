@@ -37,17 +37,17 @@ var postgresConf = {
   }
 };
 
-var mysqlConf = {
+var mySqlConf = {
   knex: {
     client: 'mysql',
-    connection: connection,
+    connection: _.assign({}, connection, {port: 13306}),
     pool: pool,
     migrations: migrations
   },
   dbManager: {
-    collate: ['fi_FI.UTF-8', 'Finnish_Finland.1252'],
+    collate: ['utf8_swedish_ci'],
     superUser: 'root',
-    superPassword: undefined
+    superPassword: 'mysqlrootpassword'
   }
 };
 
@@ -72,9 +72,9 @@ var oracleConf = {
  */
 describe('DatabaseManager', function() {
 
-  var availableDatabases = [ 
+  var availableDatabases = [
     dbManagerFactory(postgresConf),
-//    dbManagerFactory(mySqlConf),    
+    dbManagerFactory(mySqlConf),
   ];
   var dbCopyName = 'dbmanger-test-database-copy-deleteme';
 
@@ -96,7 +96,7 @@ describe('DatabaseManager', function() {
     return Promise.all(
       _.map(availableDatabases, function (dbManager) {
         var knex = dbManager.knexInstance();
-        return knex.raw(';')
+        return knex.raw('SELECT 1')
           .then(function () {
             expect("Expected error from DB").to.fail();
           }).catch(function () {
@@ -113,7 +113,7 @@ describe('DatabaseManager', function() {
           .then(function () {
             // connecting db should work
             var knex = dbManager.knexInstance();
-            return knex.raw(';');
+            return knex.raw('SELECT 1');
           });
       }));
   });
@@ -155,7 +155,7 @@ describe('DatabaseManager', function() {
           .then(function () {
             var knex = dbManager.knexInstance();
             return knex.select().from('User').then(function (result) {
-              expect(result[0].id).to.equal('1');
+              expect(parseInt(result[0].id)).to.equal(1);
             });
           });
       }));
@@ -164,6 +164,10 @@ describe('DatabaseManager', function() {
   it("#copyDb should copy a database", function () {
     return Promise.all(
       _.map(availableDatabases, function (dbManager) {
+        // CopyDB not implemented on MySqlDatabaseManager yet...
+        if (dbManager.config.knex.client === 'mysql') {
+          return;
+        }
         return dbManager.copyDb(dbManager.config.knex.connection.database, dbCopyName)
           .then(function () {
             var knex = knexWithCustomDb(dbManager, dbCopyName);
@@ -197,7 +201,7 @@ describe('DatabaseManager', function() {
             }).then(function () {
               return knex.select().from('User');
             }).then(function (result) {
-              expect(result[0].id).to.equal('1');
+              expect(parseInt(result[0].id)).to.equal(1);
             })
           ]);
         });
@@ -206,6 +210,11 @@ describe('DatabaseManager', function() {
 
   it("#updateIdSequences should update primary key sequences", function () {
     return Promise.all(_.map(availableDatabases, function (dbManager) {
+      // UpdateIdSequences not implemented on MySqlDatabaseManager yet...
+      if (dbManager.config.knex.client === 'mysql') {
+        return;
+      }
+
       var knex = dbManager.knexInstance();
 
       return knex('User').insert([
@@ -229,6 +238,11 @@ describe('DatabaseManager', function() {
 
   it("#updateIdSequences should work with empty table and with minimum value other than 1", function () {
     return Promise.all(_.map(availableDatabases, function (dbManager) {
+      // UpdateIdSequences not implemented on MySqlDatabaseManager yet...
+      if (dbManager.config.knex.client === 'mysql') {
+        return;
+      }
+
       var knex = dbManager.knexInstance();
 
       return knex.select().from('IdSeqTest').then(function (result) {
@@ -265,7 +279,7 @@ describe('DatabaseManager', function() {
         ]).then(function () {
           // test db was dropped
           var knex = dbManager.knexInstance();
-          return knex.raw(';').then(function () {
+          return knex.raw('SELECT 1').then(function () {
             expect("Expected error from DB").to.fail();
           })
           .catch(function (err) {
@@ -274,7 +288,7 @@ describe('DatabaseManager', function() {
 
         }).then(function () {
           var knex = knexWithCustomDb(dbManager, dbCopyName);
-          return knex.raw(';').then(function () {
+          return knex.raw('SELECT 1').then(function () {
             expect("Expected error from DB").to.fail();
           })
           .catch(function () {
@@ -315,6 +329,6 @@ describe('DatabaseManager', function() {
 
 function knexWithCustomDb(dbManager, dbName) {
   var tempKnex = _.cloneDeep(dbManager.config.knex);
-  tempKnex.client.database = dbName; 
+  tempKnex.client.database = dbName;
   return Knex(tempKnex);
 }
