@@ -26,21 +26,25 @@ var migrations = {
 var postgresConf = {
   knex: {
     client: 'postgres',
-    connection: connection,
+    connection: _.assign({}, connection, {
+      port: 15432
+    }),
     pool: pool,
     migrations: migrations
   },
   dbManager: {
     collate: ['fi_FI.UTF-8', 'Finnish_Finland.1252', 'en_US.utf8', 'C.UTF-8'],
     superUser: process.env.POSTGRES_SUPERUSER || 'postgres',
-    superPassword: process.env.POSTGRES_SUPERUSER_PW || undefined
+    superPassword: process.env.POSTGRES_SUPERUSER_PW || 'postgresrootpassword'
   }
 };
 
 var mySqlConf = {
   knex: {
     client: 'mysql',
-    connection: _.assign({}, connection, {port: 13306}),
+    connection: _.assign({}, connection, {
+      port: 13306
+    }),
     pool: pool,
     migrations: migrations
   },
@@ -51,75 +55,107 @@ var mySqlConf = {
   }
 };
 
-var sqliteConf = { };
+var sqliteConf = {
+  knex: {
+    client: 'sqlite',
+    connection: connection,
+    pool: pool,
+    migrations: migrations
+  },
+  dbManager: {
+  }
+};
 
+/**
+  wnameless/oracle-xe-11g
+  hostname: localhost
+  port: 11521
+  sid: xe
+  username: system
+  password: oracle
+  Password for SYS & SYSTEM
+ */
 var oracleConf = {
   knex: {
     client: 'oracledb',
-    connection: connection,
+    connection: _.assign({}, connection, {
+      port: 1521,
+      connectString: 'localhost/XE',
+      stmtCacheSize : 0
+    }),
     pool: pool,
     migrations: migrations
   },
   dbManager: {
     collate: ['fi_FI.UTF-8', 'Finnish_Finland.1252', 'en_US.utf8', 'C.UTF-8'],
     superUser: process.env.ORACLE_SUPERUSER || 'sys',
-    superPassword: process.env.ORACLE_SUPERUSER_PW || 'travis'
+    superPassword: process.env.ORACLE_SUPERUSER_PW || 'oracle'
+  }
+};
+
+var mssqlConf = {
+  knex: {
+    client: 'mssql',
+    connection: _.assign({}, connection, {
+      port: 11433
+    }),
+    pool: pool,
+    migrations: migrations
+  },
+  dbManager: {
+    collate: ['fi_FI.UTF-8', 'Finnish_Finland.1252', 'en_US.utf8', 'C.UTF-8'],
+    superUser: process.env.MSSQL_SUPERUSER || 'sa',
+    superPassword: process.env.MSSQL_SUPERUSER_PW || 'mssqlpassword'
   }
 };
 
 /**
  * All tests depends that the ones ran earlier were success.
  */
-describe('DatabaseManager', function() {
+var availableDatabases = [
+  // TBD: dbManagerFactory(sqliteConf),
+  dbManagerFactory(postgresConf),
+  dbManagerFactory(mySqlConf),
+  // dbManagerFactory(oracleConf),
+  // dbManagerFactory(mssqlConf),
+];
 
-  var availableDatabases = [
-    dbManagerFactory(postgresConf),
-    dbManagerFactory(mySqlConf),
-  ];
-  var dbCopyName = 'dbmanger-test-database-copy-deleteme';
+var dbCopyName = 'dbmanger-test-database-copy-deleteme';
 
-  before(function () {
-    // Make sure that database does not exist
-    return Promise.all(
-      _.map(availableDatabases, function (dbManager) {
-        return dbManager.createDbOwnerIfNotExist().then(function () {
-          return Promise.all([
-            dbManager.dropDb(dbManager.config.knex.connection.database),
-            dbManager.dropDb(dbCopyName)
-          ]);
+_.map(availableDatabases, function (dbManager) {
+
+  describe('Testing ' + dbManager.config.knex.client, function() {
+
+    before(function () {
+      // Make sure that database does not exist
+      return dbManager.createDbOwnerIfNotExist().then(function () {
+        return Promise.all([
+          dbManager.dropDb(dbManager.config.knex.connection.database),
+          dbManager.dropDb(dbCopyName)
+        ]);
+      });
+    });
+
+    it("#knexInstance should fail to create an instance with non existing db", function () {
+      var knex = dbManager.knexInstance();
+      return knex.raw('SELECT 1')
+        .then(function () {
+          expect("Expected error from DB").to.fail();
+        }).catch(function () {
+          expect("All good!").to.be.truthy;
         });
-      })
-    );
-  });
+    });
 
-  it("#knexInstance should fail to create an instance with non existing db", function () {
-    return Promise.all(
-      _.map(availableDatabases, function (dbManager) {
-        var knex = dbManager.knexInstance();
-        return knex.raw('SELECT 1')
-          .then(function () {
-            expect("Expected error from DB").to.fail();
-          }).catch(function () {
-            expect("All good!").to.be.truthy;
-          });
-      })
-    );
-  });
+    it("#createDb should create a database", function () {
+      return dbManager.createDb(dbManager.config.knex.connection.database)
+        .then(function () {
+          // connecting db should work
+          var knex = dbManager.knexInstance();
+          return knex.raw('SELECT 1');
+        });
+    });
 
-  it("#createDb should create a database", function () {
-    return Promise.all(
-      _.map(availableDatabases, function (dbManager) {
-        return dbManager.createDb(dbManager.config.knex.connection.database)
-          .then(function () {
-            // connecting db should work
-            var knex = dbManager.knexInstance();
-            return knex.raw('SELECT 1');
-          });
-      }));
-  });
-
-  it("#migrateDb should update version and run migrations", function () {
-    return Promise.all(_.map(availableDatabases, function (dbManager) {
+    it("#migrateDb should update version and run migrations", function () {
       return dbManager.dbVersion(dbManager.config.knex.connection.database)
         .then(function (originalVersionInfo) {
           expect(originalVersionInfo).to.equal('none');
@@ -145,45 +181,37 @@ describe('DatabaseManager', function() {
           expect(versionInfo).to.equal('20150623130922');
           return dbManager.migrateDb(dbManager.config.knex.connection.database);
         });
-      }));
-  });
+    });
 
-  it("#populateDb should populate data from given directory", function () {
-    return Promise.all(
-      _.map(availableDatabases, function (dbManager) {
-        return dbManager.populateDb(__dirname + '/populate/*.js')
-          .then(function () {
-            var knex = dbManager.knexInstance();
-            return knex.select().from('User').then(function (result) {
-              expect(parseInt(result[0].id)).to.equal(1);
+    it("#populateDb should populate data from given directory", function () {
+      return dbManager.populateDb(__dirname + '/populate/*.js')
+        .then(function () {
+          var knex = dbManager.knexInstance();
+          return knex.select().from('User').then(function (result) {
+            expect(parseInt(result[0].id)).to.equal(1);
+          });
+        });
+    });
+
+    it("#copyDb should copy a database", function () {
+      // CopyDB not implemented on MySqlDatabaseManager yet...
+      if (dbManager.config.knex.client === 'mysql') {
+        return;
+      }
+      return dbManager.copyDb(dbManager.config.knex.connection.database, dbCopyName)
+        .then(function () {
+          var knex = knexWithCustomDb(dbManager, dbCopyName);
+          return knex.select().from('User')
+            .then(function (result) {
+              expect(result[0].id).to.equal('1');
+            })
+            .finally(function () {
+              knex.destroy();
             });
-          });
-      }));
-  });
+        });
+    });
 
-  it("#copyDb should copy a database", function () {
-    return Promise.all(
-      _.map(availableDatabases, function (dbManager) {
-        // CopyDB not implemented on MySqlDatabaseManager yet...
-        if (dbManager.config.knex.client === 'mysql') {
-          return;
-        }
-        return dbManager.copyDb(dbManager.config.knex.connection.database, dbCopyName)
-          .then(function () {
-            var knex = knexWithCustomDb(dbManager, dbCopyName);
-            return knex.select().from('User')
-              .then(function (result) {
-                expect(result[0].id).to.equal('1');
-              })
-              .finally(function () {
-                knex.destroy();
-              });
-          });
-      }));
-  });
-
-  it("#truncateDb should truncate a database", function () {
-    return Promise.all(_.map(availableDatabases, function (dbManager) {
+    it("#truncateDb should truncate a database", function () {
       return dbManager.truncateDb([migrations.tableName])
         .then(function (result) {
           var knex = dbManager.knexInstance();
@@ -205,11 +233,9 @@ describe('DatabaseManager', function() {
             })
           ]);
         });
-    }));
-  });
+    });
 
-  it("#updateIdSequences should update primary key sequences", function () {
-    return Promise.all(_.map(availableDatabases, function (dbManager) {
+    it("#updateIdSequences should update primary key sequences", function () {
       // UpdateIdSequences not implemented on MySqlDatabaseManager yet...
       if (dbManager.config.knex.client === 'mysql') {
         return;
@@ -233,11 +259,9 @@ describe('DatabaseManager', function() {
         expect(users.length).to.equal(1);
         expect(users[0].id).to.equal('8');
       });
-    }));
-  });
+    });
 
-  it("#updateIdSequences should work with empty table and with minimum value other than 1", function () {
-    return Promise.all(_.map(availableDatabases, function (dbManager) {
+    it("#updateIdSequences should work with empty table and with minimum value other than 1", function () {
       // UpdateIdSequences not implemented on MySqlDatabaseManager yet...
       if (dbManager.config.knex.client === 'mysql') {
         return;
@@ -266,12 +290,9 @@ describe('DatabaseManager', function() {
         expect(result.length).to.equal(1);
         expect(result[0].id).to.equal('100');
       });
-    }));
-  });
+    });
 
-  it("#dropDb should drop a database", function () {
-    return Promise.all(
-      _.map(availableDatabases, function (dbManager) {
+    it("#dropDb should drop a database", function () {
         return Promise.all([
           dbManager.dropDb(dbManager.config.knex.connection.database),
           dbManager.dropDb(dbCopyName),
@@ -298,11 +319,9 @@ describe('DatabaseManager', function() {
             knex.destroy();
           });
         });
-      }));
-  });
+    });
 
-  it('should reconnect if used after .close', function () {
-    return Promise.all(_.map(availableDatabases, function (dbManager) {
+    it('should reconnect if used after .close', function () {
       return dbManager.close()
         .then(function () {
           return dbManager.dropDb();
@@ -313,17 +332,16 @@ describe('DatabaseManager', function() {
         .then(function () {
           return dbManager.migrateDb();
         });
-    }));
-  });
+    });
 
-  it('should create database with default collate', function () {
-    return Promise.all(_.map(availableDatabases, function (dbManager) {
+    it('should create database with default collate', function () {
       dbManager.config.dbManager.collate = null;
       return dbManager.dropDb()
         .then(function () {
           return dbManager.createDb();
         });
-    }));
+    });
+
   });
 });
 

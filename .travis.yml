@@ -7,7 +7,7 @@ node_js:
   - '6'
   - '7'
 
-dist: xenial
+dist: trusty
 
 after_script:
   - npm run-script coveralls
@@ -25,6 +25,3 @@ before_install:
   - bash ./accept_the_license_agreement_for_oracledb_xe_11g_and_install.sh
   - npm install oracledb
   - docker-compose up -d
-
-addons:
-  postgresql: '9.4'
