@@ -8,6 +8,25 @@ services:
     environment:
       - TZ=UTC
       - MYSQL_ROOT_PASSWORD=mysqlrootpassword
-      - MYSQL_DATABASE=dbmanger-test-database-deleteme
-      - MYSQL_USER=knexdbmanagerdbowneruser
-      - MYSQL_PASSWORD=knexdbmanagerdbowneruserpassword
+  postgresql:
+    image: mdillon/postgis
+    ports:
+      - "15432:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgresrootpassword
+      - POSTGRES_USER=postgres
+  mssql:
+    image: microsoft/mssql-server-linux
+    ports:
+      - "11433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=mssqlpassword
+# Actually its better to install oracle directly on host to be
+# able to compile node-oracledb to connect the DB
+#  oracledbxe:
+#    image: wnameless/oracle-xe-11g
+#    ports:
+#      - "11521:1521"
+#    environment:
+#      - ORACLE_ALLOW_REMOTE=true
