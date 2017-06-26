@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/elhigu/knex-db-manager#readme",
   "devDependencies": {
-    "chai": "^3.5.0",
+    "chai": "^4.0.0",
     "coveralls": "^2.11.9",
     "gatsby": "^0.12.48",
     "istanbul": "^0.4.5",
