@@ -142,7 +142,7 @@ _.map(availableDatabases, function (dbManager) {
         .then(function () {
           expect("Expected error from DB").to.fail();
         }).catch(function () {
-          expect("All good!").to.be.truthy;
+          expect("All good!").to.be.string;
         });
     });
 
@@ -304,7 +304,7 @@ _.map(availableDatabases, function (dbManager) {
             expect("Expected error from DB").to.fail();
           })
           .catch(function (err) {
-            expect("All good!").to.be.truthy;
+            expect("All good!").to.be.string;
           });
 
         }).then(function () {
@@ -313,7 +313,7 @@ _.map(availableDatabases, function (dbManager) {
             expect("Expected error from DB").to.fail();
           })
           .catch(function () {
-            expect("All good!").to.be.truthy;
+            expect(!!"All good!").to.be.string;
           })
           .finally(function () {
             knex.destroy();
