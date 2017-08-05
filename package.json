@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/elhigu/knex-db-manager.git"
+    "url": "git+https://github.com/Vincit/knex-db-manager.git"
   },
   "keywords": [
     "knex",
@@ -25,9 +25,9 @@
   "author": "Mikael Lepistö",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/elhigu/knex-db-manager/issues"
+    "url": "https://github.com/Vincit/knex-db-manager/issues"
   },
-  "homepage": "https://github.com/elhigu/knex-db-manager#readme",
+  "homepage": "https://github.com/Vincit/knex-db-manager#readme",
   "devDependencies": {
     "chai": "^4.0.2",
     "coveralls": "^2.11.9",
