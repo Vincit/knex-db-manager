@@ -15,13 +15,13 @@ services:
     environment:
       - POSTGRES_PASSWORD=postgresrootpassword
       - POSTGRES_USER=postgres
-  mssql:
-    image: microsoft/mssql-server-linux
-    ports:
-      - "11433:1433"
-    environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=mssqlpassword
+#  mssql:
+#    image: microsoft/mssql-server-linux
+#    ports:
+#      - "11433:1433"
+#    environment:
+#      - ACCEPT_EULA=Y
+#      - SA_PASSWORD=mssqlpassword
 # Actually its better to install oracle directly on host to be
 # able to compile node-oracledb to connect the DB
 #  oracledbxe:

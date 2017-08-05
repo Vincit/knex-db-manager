@@ -212,13 +212,16 @@ _.map(availableDatabases, function (dbManager) {
     });
 
     it("#truncateDb should truncate a database", function () {
-      return dbManager.truncateDb([migrations.tableName])
+      return dbManager.truncateDb([migrations.tableName, 'Ignoreme'])
         .then(function (result) {
           var knex = dbManager.knexInstance();
 
           return Promise.all([
             knex.select().from('User').then(function (result) {
               expect(result.length).to.equal(0);
+            }),
+            knex.select().from('Ignoreme').then(function (result) {
+              expect(result.length).to.equal(1);
             }),
             dbManager.dbVersion(dbManager.config.knex.connection.database).then(function (ver) {
               expect(ver).to.equal('20150623130922');
