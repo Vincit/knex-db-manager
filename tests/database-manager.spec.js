@@ -1,10 +1,10 @@
 var _ = require('lodash')
   , expect = require('chai').expect
   , dbManagerFactory = require('../lib').databaseManagerFactory
-  , Promise = require('bluebird')
+  , Bluebird = require('bluebird')
   , Knex = require('knex');
 
-Promise.longStackTraces();
+Bluebird.longStackTraces();
 
 var connection = {
   host: 'localhost',
@@ -109,6 +109,12 @@ var mssqlConf = {
   }
 };
 
+function knexWithCustomDb(dbManager, dbName) {
+  var tempKnex = _.cloneDeep(dbManager.config.knex);
+  tempKnex.client.database = dbName;
+  return Knex(tempKnex);
+}
+
 /**
  * All tests depends that the ones ran earlier were success.
  */
@@ -129,7 +135,7 @@ _.map(availableDatabases, function (dbManager) {
     before(function () {
       // Make sure that database does not exist
       return dbManager.createDbOwnerIfNotExist().then(function () {
-        return Promise.all([
+        return Bluebird.all([
           dbManager.dropDb(dbManager.config.knex.connection.database),
           dbManager.dropDb(dbCopyName)
         ]);
@@ -216,7 +222,7 @@ _.map(availableDatabases, function (dbManager) {
         .then(function (result) {
           var knex = dbManager.knexInstance();
 
-          return Promise.all([
+          return Bluebird.all([
             knex.select().from('User').then(function (result) {
               expect(result.length).to.equal(0);
             }),
@@ -296,7 +302,7 @@ _.map(availableDatabases, function (dbManager) {
     });
 
     it("#dropDb should drop a database", function () {
-        return Promise.all([
+        return Bluebird.all([
           dbManager.dropDb(dbManager.config.knex.connection.database),
           dbManager.dropDb(dbCopyName),
           dbManager.dropDb(dbCopyName) // this should not fail
@@ -344,12 +350,38 @@ _.map(availableDatabases, function (dbManager) {
           return dbManager.createDb();
         });
     });
-
   });
 });
 
-function knexWithCustomDb(dbManager, dbName) {
-  var tempKnex = _.cloneDeep(dbManager.config.knex);
-  tempKnex.client.database = dbName;
-  return Knex(tempKnex);
-}
+describe('Postgresql only tests', () => {
+  var manager1 = null;
+  var manager2 = null;
+
+  before(() => {
+    manager1 = dbManagerFactory(postgresConf);
+    manager2 = dbManagerFactory(postgresConf);
+  });
+
+  before(() => manager1.dropDb('testdb1'));
+  before(() => manager1.dropDb('testdb2'));
+
+  after(() => {
+    return Bluebird.all([
+      manager1.dropDb('testdb1'),
+      manager1.dropDb('testdb2')
+    ]).then(() => {
+      return Bluebird.all([
+        manager1.close(),
+        manager2.close()
+      ]);
+    });
+  })
+
+  it('should be able to create 2 DBs with 2 clients at the same time', () => {
+    return Bluebird.all([
+      manager1.createDb('testdb1'),
+      manager2.createDb('testdb2')
+    ]);
+  });
+
+});
