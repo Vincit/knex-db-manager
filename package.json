@@ -30,7 +30,7 @@
   "homepage": "https://github.com/Vincit/knex-db-manager#readme",
   "devDependencies": {
     "chai": "^4.0.2",
-    "coveralls": "^2.11.9",
+    "coveralls": "^3.0.0",
     "gatsby": "^0.12.48",
     "istanbul": "^0.4.5",
     "mocha": "^3.5.0",
