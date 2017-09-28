@@ -31,7 +31,7 @@
   "devDependencies": {
     "chai": "^4.0.2",
     "coveralls": "^2.11.9",
-    "gatsby": "^0.12.48",
+    "gatsby": "^1.9.47",
     "istanbul": "^0.4.5",
     "mocha": "^3.5.0",
     "mssql": "^4.0.4",
