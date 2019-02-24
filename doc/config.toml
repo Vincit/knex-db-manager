@@ -1,6 +1,0 @@
-siteTitle="Knex Database Manager"
-baseColor = "#884499"
-linkPrefix = "/knex-db-manager"
-docPages = [
-  "/changelog/",
-]
