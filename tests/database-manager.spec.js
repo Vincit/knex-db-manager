@@ -39,6 +39,22 @@ var postgresConf = {
   }
 };
 
+var postgresConf10 = {
+  knex: {
+    client: 'postgres',
+    connection: _.assign({}, connection, {
+      port: 25432
+    }),
+    pool: pool,
+    migrations: migrations
+  },
+  dbManager: {
+    collate: ['fi_FI.UTF-8', 'Finnish_Finland.1252', 'en_US.utf8', 'C.UTF-8'],
+    superUser: process.env.POSTGRES_SUPERUSER || 'postgres',
+    superPassword: process.env.POSTGRES_SUPERUSER_PW || 'postgresrootpassword'
+  }
+};
+
 var mySqlConf = {
   knex: {
     client: 'mysql',
@@ -120,17 +136,31 @@ function knexWithCustomDb(dbManager, dbName) {
  */
 var availableDatabases = [
   // TBD: dbManagerFactory(sqliteConf),
-  dbManagerFactory(postgresConf),
-  dbManagerFactory(mySqlConf),
-  // dbManagerFactory(oracleConf),
-  // dbManagerFactory(mssqlConf),
+  {
+    name: 'PostgreSQL 9.6',
+    manager: dbManagerFactory(postgresConf)
+  },{
+    name: 'PostgreSQL 10',
+    manager: dbManagerFactory(postgresConf10)
+  },{
+    name: 'MySQL 5.7',
+    manager: dbManagerFactory(mySqlConf)
+//  },{
+//    name: 'Oracle XE 11g',
+//    manager: dbManagerFactory(oracleConf)
+//  },{
+//    name: 'SQL Server 2017',
+//    manager: dbManagerFactory(mySqlConf)
+  }
 ];
 
 var dbCopyName = 'dbmanger-test-database-copy-deleteme';
 
-_.map(availableDatabases, function (dbManager) {
+_.map(availableDatabases, function (db) {
 
-  describe('Testing ' + dbManager.config.knex.client, function() {
+  let dbManager = db.manager;
+
+  describe('Testing ' + db.name, function() {
 
     before(function () {
       // Make sure that database does not exist

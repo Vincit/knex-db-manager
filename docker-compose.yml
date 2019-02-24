@@ -9,9 +9,16 @@ services:
       - TZ=UTC
       - MYSQL_ROOT_PASSWORD=mysqlrootpassword
   postgresql:
-    image: mdillon/postgis
+    image: mdillon/postgis:9.6
     ports:
       - "15432:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgresrootpassword
+      - POSTGRES_USER=postgres
+  postgresql10:
+    image: mdillon/postgis:10
+    ports:
+      - "25432:5432"
     environment:
       - POSTGRES_PASSWORD=postgresrootpassword
       - POSTGRES_USER=postgres
