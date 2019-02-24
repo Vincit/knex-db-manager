@@ -4,12 +4,12 @@ module.exports = {
   themeConfig: {
     displayAllHeaders: true ,
     nav: [
-      { text: 'Home', link: '/API/' },
+      { text: 'Home', link: '/' },
       { text: 'Changelog', link: '/changelog/' },
       { text: 'Github', link: 'https://github.com/Vincit/knex-db-manager' },
     ],
     sidebar: [
-      ['/API/', 'Home'],
+      ['/', 'Home'],
       ['/changelog/', 'Changelog']
     ],
     sidebarDepth: 2

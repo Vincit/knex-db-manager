@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "update-readmes": "cp ../README.md API/README.md && cp ../CHANGELOG.md Changelog/README.md",
-    "dev": "vuepress dev"
+    "update-readmes": "cp ../README.md README.md && cp ../CHANGELOG.md Changelog/README.md",
+    "dev": "vuepress dev",
+    "build": "vuepress build"
   },
   "author": "",
   "license": "ISC",

@@ -1,5 +1,12 @@
 # Changelog
 
+### 0.5.0
+
+ * Fixed id sequence queries to work on postgresql 10 databases even when 
+ * Updated dependencies
+ * Removed gatsby and started to use vuepress for docs
+ * Added CI testing for node 8 and 10
+
 ### 0.4.0
 
  * Fix allowing to create new databases even when multiple clients are connected to postgres server #36

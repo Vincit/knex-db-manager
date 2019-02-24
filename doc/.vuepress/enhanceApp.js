@@ -1,5 +1,5 @@
 export default ({ router }) => {
-  router.addRoutes([
-    { path: '/', redirect: '/API/' }
-  ])
+//  router.addRoutes([
+//    { path: '/', redirect: '/API/' }
+//  ])
 }
