@@ -25,3 +25,4 @@ before_install:
   - npm install
   - npm install oracledb
   - docker-compose up -d
+  - sh wait-databases.sh
