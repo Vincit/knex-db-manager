@@ -1,6 +1,7 @@
 module.exports = {
   title: 'knex-db-manager',
   description: 'Tool to create / drop / truncate / copy SQL database',
+  base: '/knex-db-manager/',
   themeConfig: {
     displayAllHeaders: true ,
     nav: [
