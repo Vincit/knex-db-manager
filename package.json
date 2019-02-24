@@ -19,8 +19,7 @@
     "admin",
     "management",
     "postgresql",
-    "mysql",
-    "sqlite3"
+    "mysql"
   ],
   "author": "Mikael Lepistö",
   "license": "MIT",
@@ -30,23 +29,19 @@
   "homepage": "https://github.com/Vincit/knex-db-manager#readme",
   "devDependencies": {
     "chai": "^4.1.2",
-    "coveralls": "^2.13.3",
+    "coveralls": "^3.0.3",
     "istanbul": "^0.4.5",
-    "mocha": "^3.5.0",
-    "mssql": "^4.0.4",
+    "mocha": "^6.0.1",
     "mysql": "^2.13.0",
-    "npm-check": "^5.5.2",
-    "nsp": "^2.8.1",
+    "npm-check": "^5.9.0",
+    "nsp": "^3.2.1",
     "pg": "^7.4.0",
-    "pg-escape": "^0.2.0",
-    "sqlite3": "^3.1.13"
+    "pg-escape": "^0.2.0"
   },
   "dependencies": {
     "bluebird": "^3.5.1",
     "glob": "^7.1.2",
-    "got": "^6.7.1",
-    "knex": "^0.14.0",
-    "lodash": "^4.17.4",
-    "sqlite": "^2.9.2"
+    "knex": "^0.16.3",
+    "lodash": "^4.17.11"
   }
 }

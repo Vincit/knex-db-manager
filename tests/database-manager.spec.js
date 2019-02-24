@@ -135,7 +135,6 @@ function knexWithCustomDb(dbManager, dbName) {
  * All tests depends that the ones ran earlier were success.
  */
 var availableDatabases = [
-  // TBD: dbManagerFactory(sqliteConf),
   {
     name: 'PostgreSQL 9.6',
     manager: dbManagerFactory(postgresConf)
@@ -145,6 +144,9 @@ var availableDatabases = [
   },{
     name: 'MySQL 5.7',
     manager: dbManagerFactory(mySqlConf)
+//  },{
+//    name: 'SQLite',
+//    manager: dbManagerFactory(sqliteConf)
 //  },{
 //    name: 'Oracle XE 11g',
 //    manager: dbManagerFactory(oracleConf)
@@ -170,6 +172,10 @@ _.map(availableDatabases, function (db) {
           dbManager.dropDb(dbCopyName)
         ]);
       });
+    });
+
+    after(function () {
+      return dbManager.close();
     });
 
     it("#knexInstance should fail to create an instance with non existing db", function () {
