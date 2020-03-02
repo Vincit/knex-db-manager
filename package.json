@@ -36,7 +36,8 @@
     "npm-check": "^5.9.2",
     "nsp": "^3.2.1",
     "pg": "^7.18.2",
-    "pg-escape": "^0.2.0"
+    "pg-escape": "^0.2.0",
+    "sqlite3": "^4.1.1"
   },
   "dependencies": {
     "bluebird": "^3.7.2",
