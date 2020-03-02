@@ -37,31 +37,31 @@ superuser account which should be able to create / drop roles and databases.
 let config = {
   knex: {
     // just the usual knex configuration
-    client: "postgres",
+    client: 'postgres',
     connection: {
-      host: "localhost",
-      database: "appdb",
-      user: "dbowneruser",
-      password: "dbownerpassword"
+      host: 'localhost',
+      database: 'appdb',
+      user: 'dbowneruser',
+      password: 'dbownerpassword',
     },
     pool: {
       min: 0,
-      max: 10
+      max: 10,
     },
     migrations: {
-      directory: __dirname + "/migrations"
-    }
+      directory: __dirname + '/migrations',
+    },
   },
   dbManager: {
     // db manager related configuration
-    collate: ["fi_FI.UTF-8", "Finnish_Finland.1252"],
-    superUser: "userwithrightstocreateusersanddatabases",
-    superPassword: "privilegeduserpassword",
-    populatePathPattern: "data/**/*.js" // glob format for searching seeds
-  }
+    collate: ['fi_FI.UTF-8', 'Finnish_Finland.1252'],
+    superUser: 'userwithrightstocreateusersanddatabases',
+    superPassword: 'privilegeduserpassword',
+    populatePathPattern: 'data/**/*.js', // glob format for searching seeds
+  },
 };
 
-let dbManager = require("knex-db-manager").databaseManagerFactory(config);
+let dbManager = require('knex-db-manager').databaseManagerFactory(config);
 ```
 
 ### `createDbOwnerIfNotExist(): Promise<void>`
@@ -90,7 +90,7 @@ let promise = dbManager.createDb();
 > By given name:
 
 ```js
-let promise = dbManager.createDb("brave-new-db");
+let promise = dbManager.createDb('brave-new-db');
 ```
 
 ### `dropDb(dbName?: string): Promise<void>`
@@ -111,7 +111,7 @@ let promise = dbManager.dropDb();
 > By specific name:
 
 ```js
-let promise = dbManager.dropDb("brave-new-db");
+let promise = dbManager.dropDb('brave-new-db');
 ```
 
 ### `copyDb(fromDbName: string, toDbName: string): Promise<void>`
@@ -126,7 +126,7 @@ Note: This method is not supported with MySQL (yet).
 > Making copy of DB:
 
 ```js
-let promise = dbManager.copyDb("brave-new-db", "brave-new-db-copy");
+let promise = dbManager.copyDb('brave-new-db', 'brave-new-db-copy');
 ```
 
 ### `truncateDb(ignoreTables?: string[]): Promise<void>`
@@ -144,7 +144,7 @@ let promise = dbManager.truncateDb();
 > ignore certain tables:
 
 ```js
-let promise = dbManager.truncateDb(["migrations"]);
+let promise = dbManager.truncateDb(['migrations']);
 ```
 
 ### `updateIdSequences(): Promise<void>`
@@ -184,7 +184,7 @@ let promise = dbManager.populateDb();
 > with pattern:
 
 ```js
-let promise = dbManager.populateDb(path.join(__dirname, "seeds", "test-*"));
+let promise = dbManager.populateDb(path.join(__dirname, 'seeds', 'test-*'));
 ```
 
 ### `migrateDb(): Promise<void>`
@@ -242,9 +242,9 @@ Returns `knex` query builder bound to configured database.
 
 ```js
 let knex = dbManager.knexInstance();
-knex("table")
-  .where("id", 1)
-  .then(rows => {
-    console.log("Query was ran with db owner privileges", rows);
+knex('table')
+  .where('id', 1)
+  .then((rows) => {
+    console.log('Query was ran with db owner privileges', rows);
   });
 ```
