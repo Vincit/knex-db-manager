@@ -29,19 +29,19 @@
   "homepage": "https://github.com/Vincit/knex-db-manager#readme",
   "devDependencies": {
     "chai": "^4.1.2",
-    "coveralls": "^3.0.3",
+    "coveralls": "^3.0.9",
     "istanbul": "^0.4.5",
-    "mocha": "^6.0.1",
+    "mocha": "^6.2.2",
     "mysql": "^2.13.0",
-    "npm-check": "^5.9.0",
+    "npm-check": "^5.9.2",
     "nsp": "^3.2.1",
-    "pg": "^7.4.0",
+    "pg": "^7.18.2",
     "pg-escape": "^0.2.0"
   },
   "dependencies": {
-    "bluebird": "^3.5.1",
-    "glob": "^7.1.2",
+    "bluebird": "^3.7.2",
+    "glob": "^7.1.6",
     "knex": "^0.16.3",
-    "lodash": "^4.17.11"
+    "lodash": "^4.17.15"
   }
 }
