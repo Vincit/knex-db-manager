@@ -13,7 +13,7 @@ services:
     ports:
       - "15432:5432"
     environment:
-      - POSTGRES_PASSWORD=postgresrootpassword
+      - POSTGRES_PASSWORD=po"st#gr%e!sr:oo;tpa@ss%word
       - POSTGRES_USER=postgres
   postgresql10:
     image: mdillon/postgis:10
