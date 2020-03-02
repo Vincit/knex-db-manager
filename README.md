@@ -56,7 +56,8 @@ let config = {
     // db manager related configuration
     collate: ["fi_FI.UTF-8", "Finnish_Finland.1252"],
     superUser: "userwithrightstocreateusersanddatabases",
-    superPassword: "privilegeduserpassword"
+    superPassword: "privilegeduserpassword",
+    populatePathPattern: "data/**/*.js" // glob format for searching seeds
   }
 };
 
