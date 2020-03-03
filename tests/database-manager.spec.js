@@ -52,7 +52,8 @@ var postgresConf10 = {
   dbManager: {
     collate: ['fi_FI.UTF-8', 'Finnish_Finland.1252', 'en_US.utf8', 'C.UTF-8'],
     superUser: process.env.POSTGRES_SUPERUSER || 'postgres',
-    superPassword: process.env.POSTGRES_SUPERUSER_PW || 'postgresrootpassword',
+    superPassword:
+      process.env.POSTGRES_SUPERUSER_PW || 'post#gre!sr:oo;tpa@ssword',
   },
 };
 
