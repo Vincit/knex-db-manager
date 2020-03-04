@@ -42,7 +42,12 @@
   "dependencies": {
     "bluebird": "^3.7.2",
     "glob": "^7.1.6",
-    "knex": "^0.16.3",
     "lodash": "^4.17.15"
+  },
+  "peerDependencies": {
+    "knex": "0.x"
+  },
+  "engines": {
+    "node": ">=8.0.0"
   }
 }
