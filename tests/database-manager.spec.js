@@ -36,7 +36,7 @@ var postgresConf = {
     collate: ['fi_FI.UTF-8', 'Finnish_Finland.1252', 'en_US.utf8', 'C.UTF-8'],
     superUser: process.env.POSTGRES_SUPERUSER || 'postgres',
     superPassword:
-      process.env.POSTGRES_SUPERUSER_PW || 'post#gre!sr:oo;tpa@ssword',
+      process.env.POSTGRES_SUPERUSER_PW || 'po"st#gr%e!sr:oo;tpa@ss%word',
   },
 };
 
@@ -53,7 +53,7 @@ var postgresConf10 = {
     collate: ['fi_FI.UTF-8', 'Finnish_Finland.1252', 'en_US.utf8', 'C.UTF-8'],
     superUser: process.env.POSTGRES_SUPERUSER || 'postgres',
     superPassword:
-      process.env.POSTGRES_SUPERUSER_PW || 'post#gre!sr:oo;tpa@ssword',
+      process.env.POSTGRES_SUPERUSER_PW || 'po"st#gr%e!sr:oo;tpa@ss%word',
   },
 };
 
