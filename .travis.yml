@@ -19,4 +19,7 @@ sudo: required
 before_install:
   - docker-compose up -d
   - sh wait-databases.sh
+
+install:
+  - npm install
   - npm install knex
