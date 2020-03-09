@@ -1,9 +1,5 @@
 # Changelog
 
-### master
-
-- <add changes>
-
 ### 0.6.1
 
 - Added more files to gitignore to make package smaller

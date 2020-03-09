@@ -14,7 +14,7 @@ and dropping databases / roles.
 
 - PostgreSQL
 - MySQL
-- SQLite3 (Partialy supported, most of methods will not make sense)
+- ~~SQLite3 (TBD even though most of the functions won't make sense with this)~~
 - ~~Oracle DB Express (TBD)~~
 - ~~MSSQL (TBD if we can get integration tests to run automatically)~~
 
@@ -57,6 +57,7 @@ let config = {
     collate: ['fi_FI.UTF-8', 'Finnish_Finland.1252'],
     superUser: 'userwithrightstocreateusersanddatabases',
     superPassword: 'privilegeduserpassword',
+    populatePathPattern: 'data/**/*.js', // glob format for searching seeds
   },
 };
 
@@ -214,7 +215,7 @@ let promise = dbManager.dbVersion();
 
 ### `close(): Promise<void>`
 
-Closes the single privileged connection to database server.
+Closes the single privileged connection and all normal knex connections.
 
 > Kill database connection:
 
