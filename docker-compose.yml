@@ -4,23 +4,23 @@ services:
   mysql:
     image: mysql:5.7
     ports:
-      - "13306:3306"
+      - '13306:3306'
     environment:
       - TZ=UTC
       - MYSQL_ROOT_PASSWORD=mysqlrootpassword
   postgresql:
     image: mdillon/postgis:9.6
     ports:
-      - "15432:5432"
+      - '15432:5432'
     environment:
-      - POSTGRES_PASSWORD=postgresrootpassword
+      - POSTGRES_PASSWORD=po"st#gr%e!sr:oo;tpa@ss%word
       - POSTGRES_USER=postgres
   postgresql10:
     image: mdillon/postgis:10
     ports:
-      - "25432:5432"
+      - '25432:5432'
     environment:
-      - POSTGRES_PASSWORD=postgresrootpassword
+      - POSTGRES_PASSWORD=po"st#gr%e!sr:oo;tpa@ss%word
       - POSTGRES_USER=postgres
 #  mssql:
 #    image: microsoft/mssql-server-linux

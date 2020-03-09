@@ -12,11 +12,11 @@ and dropping databases / roles.
 
 ## Supported Databases
 
-* PostgreSQL
-* MySQL
-* ~~SQLite3 (TBD even though most of the functions won't make sense with this)~~
-* ~~Oracle DB Express (TBD)~~
-* ~~MSSQL (TBD if we can get integration tests to run automatically)~~
+- PostgreSQL
+- MySQL
+- ~~SQLite3 (TBD even though most of the functions won't make sense with this)~~
+- ~~Oracle DB Express (TBD)~~
+- ~~MSSQL (TBD if we can get integration tests to run automatically)~~
 
 ## Install
 
@@ -42,22 +42,23 @@ let config = {
       host: 'localhost',
       database: 'appdb',
       user: 'dbowneruser',
-      password: 'dbownerpassword'
+      password: 'dbownerpassword',
     },
     pool: {
       min: 0,
-      max: 10
+      max: 10,
     },
     migrations: {
-      directory: __dirname + '/migrations'
-    }
+      directory: __dirname + '/migrations',
+    },
   },
   dbManager: {
     // db manager related configuration
     collate: ['fi_FI.UTF-8', 'Finnish_Finland.1252'],
     superUser: 'userwithrightstocreateusersanddatabases',
-    superPassword: 'privilegeduserpassword'
-  }
+    superPassword: 'privilegeduserpassword',
+    populatePathPattern: 'data/**/*.js', // glob format for searching seeds
+  },
 };
 
 let dbManager = require('knex-db-manager').databaseManagerFactory(config);
@@ -71,7 +72,6 @@ the database owner when creating new databases.
 ```js
 let promise = dbManager.createDbOwnerIfNotExist();
 ```
-
 
 ### `createDb(dbName?: string): Promise<void>`
 
@@ -92,7 +92,6 @@ let promise = dbManager.createDb();
 ```js
 let promise = dbManager.createDb('brave-new-db');
 ```
-
 
 ### `dropDb(dbName?: string): Promise<void>`
 
@@ -115,7 +114,6 @@ let promise = dbManager.dropDb();
 let promise = dbManager.dropDb('brave-new-db');
 ```
 
-
 ### `copyDb(fromDbName: string, toDbName: string): Promise<void>`
 
 Clones database to another name remotely on db serverside (may be useful e.g.
@@ -130,7 +128,6 @@ Note: This method is not supported with MySQL (yet).
 ```js
 let promise = dbManager.copyDb('brave-new-db', 'brave-new-db-copy');
 ```
-
 
 ### `truncateDb(ignoreTables?: string[]): Promise<void>`
 
@@ -149,7 +146,6 @@ let promise = dbManager.truncateDb();
 ```js
 let promise = dbManager.truncateDb(['migrations']);
 ```
-
 
 ### `updateIdSequences(): Promise<void>`
 
@@ -171,7 +167,6 @@ Note: This method is not supported with MySQL (yet).
 let promise = dbManager.updateIdSequences();
 ```
 
-
 ### `populateDb(glob: string): Promise<void>`
 
 Finds `knex` seed files by pattern and populate database with them.
@@ -189,11 +184,8 @@ let promise = dbManager.populateDb();
 > with pattern:
 
 ```js
-let promise = dbManager.populateDb(
-    path.join(__dirname, 'seeds', 'test-*')
-  );
+let promise = dbManager.populateDb(path.join(__dirname, 'seeds', 'test-*'));
 ```
-
 
 ### `migrateDb(): Promise<void>`
 
@@ -204,7 +196,6 @@ Runs `knex` migrations configured in knex config.
 ```js
 let promise = dbManager.migrateDb();
 ```
-
 
 ### `dbVersion(): Promise<string>`
 
@@ -222,17 +213,15 @@ resolves to first numbers of latest migration file ran e.g. for
 let promise = dbManager.dbVersion();
 ```
 
-
 ### `close(): Promise<void>`
 
-Closes the single privileged connection to database server.
+Closes the single privileged connection and all normal knex connections.
 
 > Kill database connection:
 
 ```js
 let promise = dbManager.close();
 ```
-
 
 ### `closeKnex(): Promise<void>`
 
@@ -245,7 +234,6 @@ queries. Sometimes this is needed e.g. for being able to drop database.
 let promise = dbManager.closeKnex();
 ```
 
-
 ### `knexInstance(): QueryBuilder`
 
 Returns `knex` query builder bound to configured database.
@@ -254,8 +242,9 @@ Returns `knex` query builder bound to configured database.
 
 ```js
 let knex = dbManager.knexInstance();
-knex('table').where('id', 1)
-  .then(rows => {
+knex('table')
+  .where('id', 1)
+  .then((rows) => {
     console.log('Query was ran with db owner privileges', rows);
   });
 ```
