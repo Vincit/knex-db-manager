@@ -4,6 +4,10 @@
 
 - <add changes>
 
+### 0.6.1
+
+- Added more files to gitignore to make package smaller
+
 ### 0.6.0
 
 - Fixed special character escaping in password for postgresql
