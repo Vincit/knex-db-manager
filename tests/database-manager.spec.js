@@ -253,15 +253,16 @@ _.map(availableDatabases, function(db) {
         .copyDb(dbManager.config.knex.connection.database, dbCopyName)
         .then(function() {
           var knex = knexWithCustomDb(dbManager, dbCopyName);
-          return knex
-            .select()
-            .from('User')
-            .then(function(result) {
-              expect(result[0].id).to.equal('1');
-            })
-            .finally(function() {
-              knex.destroy();
-            });
+          return Bluebird.resolve(
+            knex
+              .select()
+              .from('User')
+              .then(function(result) {
+                expect(result[0].id).to.equal('1');
+              })
+          ).finally(function() {
+            knex.destroy();
+          });
         });
     });
 
@@ -399,17 +400,18 @@ _.map(availableDatabases, function(db) {
         })
         .then(function() {
           var knex = knexWithCustomDb(dbManager, dbCopyName);
-          return knex
-            .raw('SELECT 1')
-            .then(function() {
-              expect('Expected error from DB').to.fail();
-            })
-            .catch(function() {
-              expect(!!'All good!').to.be.string;
-            })
-            .finally(function() {
-              knex.destroy();
-            });
+          return Bluebird.resolve(
+            knex
+              .raw('SELECT 1')
+              .then(function() {
+                expect('Expected error from DB').to.fail();
+              })
+              .catch(function() {
+                expect(!!'All good!').to.be.string;
+              })
+          ).finally(function() {
+            knex.destroy();
+          });
         });
     });
 
