@@ -16,6 +16,7 @@ lib-cov
 
 # Coverage directory used by tools like istanbul
 coverage
+test-coverage
 
 # nyc test coverage
 .nyc_output
@@ -57,6 +58,11 @@ typings/
 # dotenv environment variables file
 .env
 
+# vscode history directory
+.history
+
 # npm5 package lock
 package-lock.json
 
+# gh-pages doc dir on my local setup
+doc
