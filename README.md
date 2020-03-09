@@ -14,7 +14,7 @@ and dropping databases / roles.
 
 - PostgreSQL
 - MySQL
-- ~~SQLite3 (TBD even though most of the functions won't make sense with this)~~
+- SQLite3 (partial support even though most of the functions won't make sense with this)
 - ~~Oracle DB Express (TBD)~~
 - ~~MSSQL (TBD if we can get integration tests to run automatically)~~
 
