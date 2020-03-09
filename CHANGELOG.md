@@ -2,6 +2,10 @@
 
 ### master
 
+- <add changes>
+
+### 0.6.0
+
 - Fixed special character escaping in password for postgresql
 - Updated dependencies
 - Added prettier config
