@@ -232,7 +232,21 @@ _.map(availableDatabases, function(db) {
 
     it('#populateDb should populate data from given directory', function() {
       return dbManager
-        .populateDb(__dirname + '/populate/*.js')
+        .populateDb(__dirname + '/populate/*-data.js')
+        .then(function() {
+          var knex = dbManager.knexInstance();
+          return knex
+            .select()
+            .from('User')
+            .then(function(result) {
+              expect(parseInt(result[0].id)).to.equal(1);
+            });
+        });
+    });
+
+    it('#populateDb should populate data from given directory with seeding old export', function() {
+      return dbManager
+        .populateDb(__dirname + '/populate/*-old.js')
         .then(function() {
           var knex = dbManager.knexInstance();
           return knex
