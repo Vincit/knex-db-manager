@@ -9,6 +9,15 @@ exports.up = function(knex) {
         .notNullable();
       table.string('email');
     })
+    .createTable('Pet', function(table) {
+      table.bigincrements('id').primary();
+      table.string('name');
+      table
+        .biginteger('userid')
+        .unsigned()
+        .notNullable();
+      table.foreign('userid').references('User.id');
+    })
     .createTable('Ignoreme', function(table) {
       table.bigincrements('id').primary();
       table.string('description');
@@ -19,5 +28,8 @@ exports.up = function(knex) {
 };
 
 exports.down = function(knex) {
-  return knex.schema.dropTable('User').dropTable('Ignoreme');
+  return knex.schema
+    .dropTable('Pet')
+    .dropTable('User')
+    .dropTable('Ignoreme');
 };
