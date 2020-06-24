@@ -235,12 +235,20 @@ _.map(availableDatabases, function(db) {
         .populateDb(__dirname + '/populate/*.js')
         .then(function() {
           var knex = dbManager.knexInstance();
-          return knex
-            .select()
-            .from('User')
-            .then(function(result) {
-              expect(parseInt(result[0].id)).to.equal(1);
-            });
+          return Bluebird.all([
+            knex
+              .select()
+              .from('User')
+              .then(function(result) {
+                expect(parseInt(result[0].id)).to.equal(1);
+              }),
+            knex
+              .select()
+              .from('Pet')
+              .then(function(result) {
+                expect(parseInt(result[0].id)).to.equal(1);
+              }),
+          ]);
         });
     });
 
