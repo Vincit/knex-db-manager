@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.6.2
+
+- Set seeding to sequential instead of parallel #89
+- Support for old-style seeding modules #88
+
 ### 0.6.1
 
 - Added more files to gitignore to make package smaller
