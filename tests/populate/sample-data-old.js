@@ -1,6 +1,6 @@
 exports.seed = function(knex) {
   return knex('User').insert({
-    username: 'dummy',
-    email: 'lol@fake.invalid',
+    username: 'dummy-old',
+    email: 'lol-old@fake.invalid',
   });
 };
