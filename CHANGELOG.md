@@ -1,7 +1,12 @@
 # Changelog
 
+### 0.7.0
+
+- Dropped node 8 and added node 14 to tests and fixed 0.6.2 changes
+
 ### 0.6.2
 
+- NOTE: THIS WAS DEPRECATED FROM NPM DUE TO SOME BREAKING TESTS
 - Set seeding to sequential instead of parallel #89
 - Support for old-style seeding modules #88
 
