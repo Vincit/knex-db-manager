@@ -73,6 +73,22 @@ var mySqlConf = {
   },
 };
 
+var mySql2Conf = {
+  knex: {
+    client: 'mysql2',
+    connection: _.assign({}, connection, {
+      port: 23306,
+    }),
+    pool: pool,
+    migrations: migrations,
+  },
+  dbManager: {
+    collate: ['utf8_swedish_ci'],
+    superUser: 'root',
+    superPassword: 'mysqlrootpassword',
+  },
+};
+
 var sqliteConf = {
   knex: {
     client: 'sqlite',
@@ -147,6 +163,10 @@ var availableDatabases = [
   {
     name: 'MySQL 5.7',
     manager: dbManagerFactory(mySqlConf),
+  },
+  {
+    name: 'MySQL 8.0',
+    manager: dbManagerFactory(mySql2Conf),
     //  },{
     //    name: 'SQLite',
     //    manager: dbManagerFactory(sqliteConf)
@@ -268,7 +288,7 @@ _.map(availableDatabases, function(db) {
 
     it('#copyDb should copy a database', function() {
       // CopyDB not implemented on MySqlDatabaseManager yet...
-      if (dbManager.config.knex.client === 'mysql') {
+      if (['mysql', 'mysql2'].includes(dbManager.config.knex.client)) {
         return;
       }
       return dbManager
@@ -329,7 +349,7 @@ _.map(availableDatabases, function(db) {
 
     it('#updateIdSequences should update primary key sequences', function() {
       // UpdateIdSequences not implemented on MySqlDatabaseManager yet...
-      if (dbManager.config.knex.client === 'mysql') {
+      if (['mysql', 'mysql2'].includes(dbManager.config.knex.client)) {
         return;
       }
 
@@ -364,7 +384,7 @@ _.map(availableDatabases, function(db) {
 
     it('#updateIdSequences should work with empty table and with minimum value other than 1', function() {
       // UpdateIdSequences not implemented on MySqlDatabaseManager yet...
-      if (dbManager.config.knex.client === 'mysql') {
+      if (['mysql', 'mysql2'].includes(dbManager.config.knex.client)) {
         return;
       }
 
