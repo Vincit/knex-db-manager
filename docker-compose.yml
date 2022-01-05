@@ -8,6 +8,13 @@ services:
     environment:
       - TZ=UTC
       - MYSQL_ROOT_PASSWORD=mysqlrootpassword
+  mysql8:
+    image: mysql:8
+    ports:
+      - '23306:3306'
+    environment:
+      - TZ=UTC
+      - MYSQL_ROOT_PASSWORD=mysqlrootpassword
   postgresql:
     image: mdillon/postgis:9.6
     ports:

@@ -7,6 +7,7 @@ describe('Testing dialect aliases', function() {
     'postgres',
     'postgresql',
     'mysql',
+    'mysql2',
     'maria',
     'mariadb',
     'mariasql',
