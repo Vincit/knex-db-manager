@@ -45,7 +45,7 @@
     "lodash": "^4.17.15"
   },
   "peerDependencies": {
-    "knex": "0.x"
+    "knex": "0.x || 1.x"
   },
   "engines": {
     "node": ">=8.0.0"
